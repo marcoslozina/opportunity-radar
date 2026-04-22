@@ -2,6 +2,11 @@
 
 ## [Unreleased] - 2026-04-22
 ### Added
+- Product discovery domain for monetization opportunities
+- Opportunity radar scoring engine
+
+## [Unreleased] - 2026-04-22
+### Added
 - Implement opportunity radar scoring engine
 
 ## [Unreleased] - 2026-04-22
