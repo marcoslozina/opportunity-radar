@@ -83,7 +83,7 @@ jobs:
 
       - name: Update PR description
         if: steps.check.outputs.empty == 'true'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const fs = require('fs')
