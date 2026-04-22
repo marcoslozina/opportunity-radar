@@ -57,7 +57,7 @@ jobs:
       # ── TypeScript ──
       - name: Setup Node (TypeScript)
         if: needs.detect.outputs.typescript == 'true'
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: '20'
           cache: 'npm'
@@ -108,7 +108,7 @@ jobs:
       # ── TypeScript ──
       - name: Setup Node (TypeScript)
         if: needs.detect.outputs.typescript == 'true'
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: '20'
           cache: 'npm'
@@ -186,7 +186,7 @@ jobs:
       # ── TypeScript ──
       - name: Setup Node (TypeScript)
         if: needs.detect.outputs.typescript == 'true'
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: '20'
           cache: 'npm'
@@ -255,7 +255,7 @@ jobs:
       # ── TypeScript: npm audit ──
       - name: Setup Node (TypeScript)
         if: needs.detect.outputs.typescript == 'true'
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: '20'
           cache: 'npm'
@@ -292,7 +292,7 @@ jobs:
 
       - name: Build TypeScript
         if: needs.detect.outputs.typescript == 'true'
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: '20'
           cache: 'npm'
