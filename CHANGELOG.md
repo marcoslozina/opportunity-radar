@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased] - 2026-04-22
+### Added
+- Initial commit
+
 ## [Unreleased] - 2026-04-21
 ### Added
 - Add requirements engineering and DDD skills
