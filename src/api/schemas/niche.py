@@ -1,11 +1,16 @@
 from __future__ import annotations
 
+from typing import Literal
+
 from pydantic import BaseModel, field_validator
+
+DiscoveryMode = Literal["content", "product", "both"]
 
 
 class CreateNicheRequest(BaseModel):
     name: str
     keywords: list[str]
+    discovery_mode: DiscoveryMode = "content"
 
     @field_validator("keywords")
     @classmethod
@@ -20,3 +25,4 @@ class NicheResponse(BaseModel):
     name: str
     keywords: list[str]
     active: bool
+    discovery_mode: str

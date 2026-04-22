@@ -58,6 +58,43 @@ async def _run_pipeline_for_niche(niche_id_str: str) -> None:
         _running.discard(niche_id_str)
 
 
+async def _run_product_pipeline_for_niche(niche_id_str: str) -> None:
+    if niche_id_str in _running:
+        logger.warning("PRODUCT_PIPELINE_ALREADY_RUNNING niche_id=%s", niche_id_str)
+        return
+
+    _running.add(niche_id_str)
+    try:
+        from infrastructure.db.session import AsyncSessionFactory
+        from infrastructure.db.repositories import SQLNicheRepository
+        from infrastructure.db.product_repositories import SQLProductBriefingRepository
+        from infrastructure.adapters.frustration_signal import FrustrationSignalAdapter
+        from infrastructure.adapters.serp_product import SerpProductAdapter
+        from infrastructure.adapters.claude_product_discovery import ClaudeProductDiscoveryAdapter
+        from application.services.profitability_scoring_engine import ProfitabilityScoringEngine
+        from application.use_cases.run_product_discovery import RunProductDiscoveryUseCase
+        from domain.entities.niche import NicheId
+        from uuid import UUID
+
+        async with AsyncSessionFactory() as session:
+            use_case = RunProductDiscoveryUseCase(
+                niche_repo=SQLNicheRepository(session),
+                product_briefing_repo=SQLProductBriefingRepository(session),
+                collectors=[
+                    FrustrationSignalAdapter(),
+                    SerpProductAdapter(),
+                ],
+                discovery_port=ClaudeProductDiscoveryAdapter(),
+                scoring_engine=ProfitabilityScoringEngine(),
+            )
+            await use_case.execute(NicheId(UUID(niche_id_str)))
+            logger.info("Product pipeline completed for niche_id=%s", niche_id_str)
+    except Exception as exc:
+        logger.error("Product pipeline failed for niche_id=%s: %s", niche_id_str, exc)
+    finally:
+        _running.discard(niche_id_str)
+
+
 async def schedule_all_niches() -> None:
     from infrastructure.db.session import AsyncSessionFactory
     from infrastructure.db.repositories import SQLNicheRepository
@@ -87,6 +124,8 @@ async def schedule_all_niches() -> None:
             )
             logger.info("Scheduled pipeline job for niche_id=%s", niche.id)
 
+        add_product_discovery_job(niche)
+
 
 def add_niche_job(niche_id_str: str) -> None:
     cron_parts = settings.pipeline_schedule.split()
@@ -107,6 +146,33 @@ def add_niche_job(niche_id_str: str) -> None:
         max_instances=1,
         replace_existing=True,
     )
+
+
+def add_product_discovery_job(niche: object) -> None:
+    discovery_mode = getattr(niche, "discovery_mode", "content")
+    if discovery_mode not in ("product", "both"):
+        return
+
+    niche_id_str = str(niche.id)  # type: ignore[union-attr]
+    cron_parts = settings.pipeline_schedule.split()
+    trigger = CronTrigger(
+        minute=cron_parts[0],
+        hour=cron_parts[1],
+        day=cron_parts[2],
+        month=cron_parts[3],
+        day_of_week=cron_parts[4],
+    )
+    job_id = f"product_pipeline_{niche_id_str}"
+    scheduler.add_job(
+        _run_product_pipeline_for_niche,
+        trigger=trigger,
+        args=[niche_id_str],
+        id=job_id,
+        coalesce=True,
+        max_instances=1,
+        replace_existing=True,
+    )
+    logger.info("Scheduled product discovery job for niche_id=%s", niche_id_str)
 
 
 def remove_niche_job(niche_id_str: str) -> None:

@@ -62,3 +62,15 @@ def test_delete_niche_when_not_found_then_404(client: TestClient) -> None:
     from uuid import uuid4
     resp = client.delete(f"/niches/{uuid4()}")
     assert resp.status_code == 404
+
+
+def test_create_niche_with_discovery_mode_product(client: TestClient) -> None:
+    resp = client.post("/niches", json={"name": "Python", "keywords": ["python async"], "discovery_mode": "product"})
+    assert resp.status_code == 201
+    data = resp.json()
+    assert data["discovery_mode"] == "product"
+
+
+def test_create_niche_invalid_discovery_mode(client: TestClient) -> None:
+    resp = client.post("/niches", json={"name": "Python", "keywords": ["python async"], "discovery_mode": "unknown"})
+    assert resp.status_code == 422

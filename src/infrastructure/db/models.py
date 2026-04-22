@@ -19,6 +19,7 @@ class NicheModel(Base):
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     keywords_json: Mapped[str] = mapped_column(Text, nullable=False)
     active: Mapped[bool] = mapped_column(default=True)
+    discovery_mode: Mapped[str] = mapped_column(String(10), nullable=False, default="content", server_default="content")
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
@@ -71,4 +72,45 @@ class OpportunityModel(Base):
 
     briefing: Mapped[BriefingModel] = relationship(
         "BriefingModel", back_populates="opportunities"
+    )
+
+
+class ProductOpportunityModel(Base):
+    __tablename__ = "product_opportunities"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    niche_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("niches.id", ondelete="CASCADE"), nullable=False
+    )
+    briefing_id: Mapped[str | None] = mapped_column(
+        String(36), ForeignKey("product_briefings.id", ondelete="CASCADE"), nullable=True
+    )
+    topic: Mapped[str] = mapped_column(String(500), nullable=False)
+    frustration_level: Mapped[float | None] = mapped_column(Float, nullable=True)
+    market_size: Mapped[float | None] = mapped_column(Float, nullable=True)
+    competition_gap: Mapped[float | None] = mapped_column(Float, nullable=True)
+    willingness_to_pay: Mapped[float | None] = mapped_column(Float, nullable=True)
+    total: Mapped[float | None] = mapped_column(Float, nullable=True)
+    confidence: Mapped[str | None] = mapped_column(String(10), nullable=True)
+    product_type: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    product_reasoning: Mapped[str | None] = mapped_column(Text, nullable=True)
+    recommended_price_range: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+    briefing: Mapped[ProductBriefingModel | None] = relationship(
+        "ProductBriefingModel", back_populates="opportunities"
+    )
+
+
+class ProductBriefingModel(Base):
+    __tablename__ = "product_briefings"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    niche_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("niches.id", ondelete="CASCADE"), nullable=False
+    )
+    generated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+    opportunities: Mapped[list[ProductOpportunityModel]] = relationship(
+        "ProductOpportunityModel", back_populates="briefing", cascade="all, delete-orphan"
     )

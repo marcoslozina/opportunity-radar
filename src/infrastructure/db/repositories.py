@@ -24,6 +24,7 @@ class SQLNicheRepository(NicheRepository):
             name=niche.name,
             keywords_json=__import__("json").dumps(niche.keywords),
             active=niche.active,
+            discovery_mode=niche.discovery_mode,
         )
         self._session.add(model)
         await self._session.commit()
@@ -115,6 +116,7 @@ def _to_niche(model: NicheModel) -> Niche:
         name=model.name,
         keywords=model.keywords,
         active=model.active,
+        discovery_mode=model.discovery_mode,
     )
 
 

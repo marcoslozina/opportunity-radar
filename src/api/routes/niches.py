@@ -8,7 +8,7 @@ from application.use_cases.create_niche import CreateNicheUseCase, KeywordsRequi
 from domain.entities.niche import NicheId
 from infrastructure.db.repositories import SQLNicheRepository
 from infrastructure.db.session import get_session
-from infrastructure.scheduler.pipeline_scheduler import add_niche_job, remove_niche_job
+from infrastructure.scheduler.pipeline_scheduler import add_niche_job, add_product_discovery_job, remove_niche_job
 
 from uuid import UUID
 
@@ -23,12 +23,24 @@ async def create_niche(
     repo = SQLNicheRepository(session)
     use_case = CreateNicheUseCase(repo)
     try:
-        niche = await use_case.execute(name=body.name, keywords=body.keywords)
+        niche = await use_case.execute(
+            name=body.name,
+            keywords=body.keywords,
+            discovery_mode=body.discovery_mode,
+        )
     except KeywordsRequiredError as exc:
         raise HTTPException(status_code=422, detail={"code": "KEYWORDS_REQUIRED", "message": str(exc)})
 
     add_niche_job(str(niche.id))
-    return NicheResponse(id=str(niche.id), name=niche.name, keywords=niche.keywords, active=niche.active)
+    if niche.discovery_mode in ("product", "both"):
+        add_product_discovery_job(niche)
+    return NicheResponse(
+        id=str(niche.id),
+        name=niche.name,
+        keywords=niche.keywords,
+        active=niche.active,
+        discovery_mode=niche.discovery_mode,
+    )
 
 
 @router.get("", response_model=list[NicheResponse])
@@ -36,7 +48,7 @@ async def list_niches(session: AsyncSession = Depends(get_session)) -> list[Nich
     repo = SQLNicheRepository(session)
     niches = await repo.find_all_active()
     return [
-        NicheResponse(id=str(n.id), name=n.name, keywords=n.keywords, active=n.active)
+        NicheResponse(id=str(n.id), name=n.name, keywords=n.keywords, active=n.active, discovery_mode=n.discovery_mode)
         for n in niches
     ]
 
