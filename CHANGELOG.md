@@ -2,6 +2,13 @@
 
 ## [Unreleased] - 2026-04-22
 ### Added
+- Add product discovery domain for monetization opportunities.
+- Implement opportunity radar scoring engine.
+### Changed
+- Bump actions/setup-go from 5 to 6.
+
+## [Unreleased] - 2026-04-22
+### Added
 - Product discovery domain for monetization opportunities
 - Opportunity radar scoring engine
 
