@@ -37,6 +37,11 @@ coverage/
 *.out
 vendor/
 
+# ── DB local ──────────────────────────────────────────
+*.db
+*.sqlite
+*.sqlite3
+
 # ── Secrets y entorno ─────────────────────────────────
 .env
 .env.*

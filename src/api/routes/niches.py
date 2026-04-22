@@ -1,0 +1,55 @@
+from __future__ import annotations
+
+from fastapi import APIRouter, Depends, HTTPException, Response
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from api.schemas.niche import CreateNicheRequest, NicheResponse
+from application.use_cases.create_niche import CreateNicheUseCase, KeywordsRequiredError
+from domain.entities.niche import NicheId
+from infrastructure.db.repositories import SQLNicheRepository
+from infrastructure.db.session import get_session
+from infrastructure.scheduler.pipeline_scheduler import add_niche_job, remove_niche_job
+
+from uuid import UUID
+
+router = APIRouter(prefix="/niches", tags=["niches"])
+
+
+@router.post("", response_model=NicheResponse, status_code=201)
+async def create_niche(
+    body: CreateNicheRequest,
+    session: AsyncSession = Depends(get_session),
+) -> NicheResponse:
+    repo = SQLNicheRepository(session)
+    use_case = CreateNicheUseCase(repo)
+    try:
+        niche = await use_case.execute(name=body.name, keywords=body.keywords)
+    except KeywordsRequiredError as exc:
+        raise HTTPException(status_code=422, detail={"code": "KEYWORDS_REQUIRED", "message": str(exc)})
+
+    add_niche_job(str(niche.id))
+    return NicheResponse(id=str(niche.id), name=niche.name, keywords=niche.keywords, active=niche.active)
+
+
+@router.get("", response_model=list[NicheResponse])
+async def list_niches(session: AsyncSession = Depends(get_session)) -> list[NicheResponse]:
+    repo = SQLNicheRepository(session)
+    niches = await repo.find_all_active()
+    return [
+        NicheResponse(id=str(n.id), name=n.name, keywords=n.keywords, active=n.active)
+        for n in niches
+    ]
+
+
+@router.delete("/{niche_id}", status_code=204)
+async def delete_niche(
+    niche_id: str,
+    session: AsyncSession = Depends(get_session),
+) -> Response:
+    repo = SQLNicheRepository(session)
+    niche = await repo.find_by_id(NicheId(UUID(niche_id)))
+    if niche is None:
+        raise HTTPException(status_code=404, detail="Niche not found")
+    await repo.delete(NicheId(UUID(niche_id)))
+    remove_niche_job(niche_id)
+    return Response(status_code=204)
