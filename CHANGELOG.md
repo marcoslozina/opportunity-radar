@@ -2,6 +2,10 @@
 
 ## [Unreleased] - 2026-04-22
 ### Added
+- Implement opportunity radar scoring engine
+
+## [Unreleased] - 2026-04-22
+### Added
 - Initial commit
 
 ## [Unreleased] - 2026-04-21
