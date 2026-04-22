@@ -1,0 +1,100 @@
+name: AI Changelog
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  changelog:
+    name: Generate changelog entry
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      models: read
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Get commits since last tag
+        id: commits
+        run: |
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          if [ -z "$LAST_TAG" ]; then
+            COMMITS=$(git log --oneline -20)
+          else
+            COMMITS=$(git log ${LAST_TAG}..HEAD --oneline)
+          fi
+          echo "commits<<EOF" >> $GITHUB_OUTPUT
+          echo "$COMMITS" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          echo "last_tag=$LAST_TAG" >> $GITHUB_OUTPUT
+
+      - name: Skip if no commits
+        if: steps.commits.outputs.commits == ''
+        run: |
+          echo "No commits since last tag — skipping changelog."
+          exit 0
+
+      - name: Generate changelog with GitHub Models
+        if: steps.commits.outputs.commits != ''
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COMMITS: ${{ steps.commits.outputs.commits }}
+        run: |
+          pip install -q openai
+          python3 - <<'EOF' > changelog_entry.md
+          from openai import OpenAI
+          import os
+          from datetime import date
+
+          client = OpenAI(
+              base_url="https://models.inference.ai.azure.com",
+              api_key=os.environ["GITHUB_TOKEN"],
+          )
+          commits = os.environ["COMMITS"]
+          today = date.today().isoformat()
+
+          response = client.chat.completions.create(
+              model="gpt-4o-mini",
+              max_tokens=800,
+              messages=[
+                  {"role": "system", "content": """Generás entradas de CHANGELOG en formato Keep a Changelog.
+          Agrupá los commits en secciones: Added, Changed, Fixed, Removed, Security.
+          Omití secciones vacías. Usá bullet points concisos.
+          Responder SOLO con el markdown del bloque, sin texto extra.
+          Formato:
+          ## [Unreleased] - FECHA
+          ### Added
+          - ...
+          ### Fixed
+          - ..."""},
+                  {"role": "user", "content": f"Fecha: {today}\n\nCommits:\n{commits}"}
+              ]
+          )
+          print(response.choices[0].message.content)
+          EOF
+
+      - name: Prepend to CHANGELOG.md
+        if: steps.commits.outputs.commits != ''
+        run: |
+          NEW_ENTRY=$(cat changelog_entry.md)
+
+          if [ -f "CHANGELOG.md" ]; then
+            # Insert after the first line (# Changelog header)
+            HEAD=$(head -1 CHANGELOG.md)
+            TAIL=$(tail -n +2 CHANGELOG.md)
+            printf '%s\n\n%s\n%s\n' "$HEAD" "$NEW_ENTRY" "$TAIL" > CHANGELOG.md
+          else
+            printf '# Changelog\n\nAll notable changes to this project will be documented here.\n\n%s\n' "$NEW_ENTRY" > CHANGELOG.md
+          fi
+
+      - name: Commit changelog
+        if: steps.commits.outputs.commits != ''
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add CHANGELOG.md
+          git diff --staged --quiet || git commit -m "chore: update changelog [skip ci]"
+          git push

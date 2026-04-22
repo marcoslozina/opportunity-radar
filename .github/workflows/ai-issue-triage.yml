@@ -1,0 +1,142 @@
+name: AI Issue Triage
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  triage:
+    name: Triage and label issue
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      models: read
+
+    steps:
+      - name: Triage with GitHub Models
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
+        run: |
+          pip install -q openai
+          python3 - <<'EOF' > triage.json
+          from openai import OpenAI
+          import os, json
+
+          client = OpenAI(
+              base_url="https://models.inference.ai.azure.com",
+              api_key=os.environ["GITHUB_TOKEN"],
+          )
+          title = os.environ["ISSUE_TITLE"]
+          body = os.environ.get("ISSUE_BODY", "")[:2000]
+
+          response = client.chat.completions.create(
+              model="gpt-4o-mini",
+              max_tokens=300,
+              messages=[
+                  {"role": "system", "content": """Analizás issues de GitHub y devolvés un JSON con:
+          {
+            "type": "bug" | "feature" | "docs" | "question" | "security",
+            "priority": "critical" | "high" | "medium" | "low",
+            "effort": "small" | "medium" | "large",
+            "labels": ["label1", "label2"],
+            "comment": "Una oración explicando el triage"
+          }
+
+          Labels válidos: bug, enhancement, documentation, question, security,
+          good first issue, help wanted, needs-triage, duplicate.
+
+          Security es cualquier reporte de vulnerabilidad, secret expuesto, o auth bypass.
+          Critical es: producción caída, pérdida de datos, vulnerabilidad de seguridad.
+          Responder SOLO con el JSON, sin texto extra."""},
+                  {"role": "user", "content": f"Title: {title}\n\nBody: {body}"}
+              ]
+          )
+
+          try:
+              result = json.loads(response.choices[0].message.content)
+          except:
+              result = {
+                  "type": "question",
+                  "priority": "medium",
+                  "effort": "medium",
+                  "labels": ["needs-triage"],
+                  "comment": "No se pudo clasificar automáticamente."
+              }
+
+          print(json.dumps(result))
+          EOF
+
+      - name: Apply labels and comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs')
+            const triage = JSON.parse(fs.readFileSync('triage.json', 'utf8'))
+
+            // Mapear prioridad a label
+            const priorityLabel = {
+              critical: 'priority: critical',
+              high: 'priority: high',
+              medium: 'priority: medium',
+              low: 'priority: low'
+            }
+
+            const effortLabel = {
+              small: 'effort: small',
+              medium: 'effort: medium',
+              large: 'effort: large'
+            }
+
+            const allLabels = [
+              ...triage.labels,
+              priorityLabel[triage.priority],
+              effortLabel[triage.effort]
+            ].filter(Boolean)
+
+            // Crear labels si no existen (best effort)
+            for (const label of allLabels) {
+              try {
+                await github.rest.issues.createLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  name: label,
+                  color: label.includes('critical') ? 'ff0000' :
+                         label.includes('high') ? 'ff6600' :
+                         label.includes('security') ? 'ee0701' : 'cccccc'
+                })
+              } catch (e) { /* label ya existe */ }
+            }
+
+            // Aplicar labels
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: allLabels
+            })
+
+            // Comentar triage
+            const emoji = {
+              bug: '🐛', feature: '✨', docs: '📝',
+              question: '❓', security: '🔒'
+            }
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `## ${emoji[triage.type] || '📋'} Triage automático
+
+            | Campo | Valor |
+            |-------|-------|
+            | Tipo | \`${triage.type}\` |
+            | Prioridad | \`${triage.priority}\` |
+            | Esfuerzo estimado | \`${triage.effort}\` |
+
+            ${triage.comment}
+
+            ---
+            *Triage automático — puede ser incorrecto. Ajustá los labels si hace falta.*`
+            })

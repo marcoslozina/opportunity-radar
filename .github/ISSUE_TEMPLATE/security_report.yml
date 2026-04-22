@@ -1,0 +1,81 @@
+name: Security vulnerability
+description: Reportar una vulnerabilidad de seguridad
+labels: ["security", "priority: critical"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ⚠️ **Si la vulnerabilidad es crítica o afecta producción, NO la publiques aquí.**
+        Enviá un reporte privado por email o usá [GitHub Private Security Advisories](https://docs.github.com/en/code-security/security-advisories/guidance-on-reporting-and-writing/privately-reporting-a-security-vulnerability).
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: Tipo de vulnerabilidad
+      options:
+        - Inyección (SQL, NoSQL, Command, LDAP)
+        - Autenticación / Autorización rota
+        - Secret o credencial expuesta
+        - XSS (Cross-Site Scripting)
+        - CSRF
+        - Dependencia con CVE conocido
+        - Exposición de datos sensibles / PII
+        - Misconfiguration de infraestructura
+        - Otro
+    validations:
+      required: true
+
+  - type: textarea
+    id: component
+    attributes:
+      label: Componente afectado
+      description: Archivo, endpoint, módulo, o servicio afectado.
+      placeholder: "src/auth/jwt.py, endpoint POST /api/login"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Descripción
+      description: Explicá la vulnerabilidad sin incluir exploits funcionales.
+    validations:
+      required: true
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impacto potencial
+      description: ¿Qué puede hacer un atacante si explota esto?
+      placeholder: "Un atacante podría acceder a datos de otros usuarios sin autenticación."
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Pasos para reproducir (si aplica)
+      description: Solo si es seguro publicarlos aquí.
+    validations:
+      required: false
+
+  - type: textarea
+    id: fix
+    attributes:
+      label: Sugerencia de fix
+      description: Si tenés una propuesta de solución, compartila.
+    validations:
+      required: false
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severidad estimada (CVSS)
+      options:
+        - Crítica (9.0–10.0)
+        - Alta (7.0–8.9)
+        - Media (4.0–6.9)
+        - Baja (0.1–3.9)
+        - No sé
+    validations:
+      required: true

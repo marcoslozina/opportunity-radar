@@ -1,0 +1,112 @@
+name: ADR Compliance Check
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  adr-check:
+    name: Check ADR for architecture changes
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+      models: read
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Get changed files
+        id: files
+        run: |
+          git diff --name-only origin/${{ github.base_ref }}...HEAD > changed_files.txt
+          cat changed_files.txt
+
+      - name: Check for new ADRs in this PR
+        id: adr
+        run: |
+          if grep -q "^docs/adr/ADR-" changed_files.txt; then
+            echo "has_adr=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_adr=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Detect architecture-significant changes
+        id: arch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          pip install -q openai
+          python3 - <<'EOF' > arch_result.txt
+          from openai import OpenAI
+          import os, subprocess
+
+          client = OpenAI(
+              base_url="https://models.inference.ai.azure.com",
+              api_key=os.environ["GITHUB_TOKEN"],
+          )
+
+          diff_result = subprocess.run(
+              ['git', 'diff', f'origin/{os.environ.get("BASE_REF", "main")}...HEAD'],
+              capture_output=True, text=True
+          )
+          diff = diff_result.stdout[:5000]
+
+          if not diff.strip():
+              print("NO_ARCH_CHANGE")
+              exit(0)
+
+          response = client.chat.completions.create(
+              model="gpt-4o-mini",
+              max_tokens=100,
+              messages=[
+                  {"role": "system", "content": """Analizás diffs de código para detectar cambios de arquitectura.
+          Responder SOLO con YES o NO.
+          Cambios que requieren ADR: nueva dependencia externa, cambio de framework,
+          nueva capa o módulo, cambio en cómo se comunican componentes,
+          cambio en estrategia de persistencia, decisión de diseño no obvia."""},
+                  {"role": "user", "content": f"¿Este diff tiene cambios de arquitectura que requieren ADR?\n\n{diff}"}
+              ]
+          )
+          result = response.choices[0].message.content.strip().upper()
+          print("YES" if "YES" in result else "NO")
+          EOF
+
+          RESULT=$(cat arch_result.txt)
+          echo "needs_adr=$([[ "$RESULT" == "YES" ]] && echo true || echo false)" >> $GITHUB_OUTPUT
+
+        env:
+          BASE_REF: ${{ github.base_ref }}
+
+      - name: Warn if arch change without ADR
+        if: steps.arch.outputs.needs_adr == 'true' && steps.adr.outputs.has_adr == 'false'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `## ⚠️ Posible cambio de arquitectura sin ADR
+
+            Este PR parece incluir una decisión de arquitectura significativa, pero no hay un nuevo archivo en \`docs/adr/\`.
+
+            **¿Necesitás crear un ADR?** Usá el comando \`/new-adr\` en Claude Code o copiá el template:
+            \`docs/adr/ADR-000-template.md\`
+
+            Si este cambio **no** requiere ADR, ignorá este mensaje.`
+            })
+
+      - name: Confirm ADR present
+        if: steps.adr.outputs.has_adr == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `✅ ADR detectado en este PR — decisión de arquitectura documentada.`
+            })

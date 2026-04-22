@@ -1,0 +1,107 @@
+name: Format Check
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  detect-language:
+    name: Detect project language
+    runs-on: ubuntu-latest
+    outputs:
+      python: ${{ steps.detect.outputs.python }}
+      java: ${{ steps.detect.outputs.java }}
+      typescript: ${{ steps.detect.outputs.typescript }}
+      go: ${{ steps.detect.outputs.go }}
+    steps:
+      - uses: actions/checkout@v6
+      - name: Detect languages
+        id: detect
+        run: |
+          echo "python=$([ -f pyproject.toml ] || [ -f requirements.txt ] && echo true || echo false)" >> $GITHUB_OUTPUT
+          echo "java=$([ -f pom.xml ] || [ -f build.gradle ] || [ -f build.gradle.kts ] && echo true || echo false)" >> $GITHUB_OUTPUT
+          echo "typescript=$([ -f tsconfig.json ] || [ -f package.json ] && echo true || echo false)" >> $GITHUB_OUTPUT
+          echo "go=$([ -f go.mod ] && echo true || echo false)" >> $GITHUB_OUTPUT
+
+  # ── Python: ruff format ─────────────────────────────────────────
+  format-python:
+    name: Format (Python)
+    needs: detect-language
+    if: needs.detect-language.outputs.python == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: astral-sh/setup-uv@v3
+      - name: Check formatting
+        run: uvx ruff format --check .
+      - name: Check linting
+        run: uvx ruff check .
+
+  # ── Java: google-java-format ────────────────────────────────────
+  format-java:
+    name: Format (Java)
+    needs: detect-language
+    if: needs.detect-language.outputs.java == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+      - name: Download google-java-format
+        run: |
+          curl -sL -o /tmp/gjf.jar \
+            https://github.com/google/google-java-format/releases/download/v1.22.0/google-java-format-1.22.0-all-deps.jar
+      - name: Check formatting
+        run: |
+          FILES=$(find . -name "*.java" -not -path "*/build/*" -not -path "*/.gradle/*")
+          if [ -z "$FILES" ]; then exit 0; fi
+          java -jar /tmp/gjf.jar --dry-run --set-exit-if-changed $FILES
+      - name: Checkstyle (if config exists)
+        if: ${{ hashFiles('**/checkstyle*.xml') != '' }}
+        run: ./gradlew checkstyleMain checkstyleTest --no-daemon || mvn checkstyle:check
+
+  # ── TypeScript / JavaScript: prettier ──────────────────────────
+  format-typescript:
+    name: Format (TypeScript)
+    needs: detect-language
+    if: needs.detect-language.outputs.typescript == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - name: Check formatting
+        run: npx prettier --check "**/*.{ts,tsx,js,jsx,json,css,md}"
+      - name: ESLint
+        run: npx eslint . --max-warnings=0 || true
+
+  # ── Go: gofmt + vet ─────────────────────────────────────────────
+  format-go:
+    name: Format (Go)
+    needs: detect-language
+    if: needs.detect-language.outputs.go == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: Check formatting
+        run: |
+          UNFORMATTED=$(gofmt -l .)
+          if [ -n "$UNFORMATTED" ]; then
+            echo "These files need gofmt:"
+            echo "$UNFORMATTED"
+            exit 1
+          fi
+      - name: go vet
+        run: go vet ./...
+      - name: staticcheck
+        run: |
+          go install honnef.co/go/tools/cmd/staticcheck@latest
+          staticcheck ./...

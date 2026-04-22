@@ -1,0 +1,78 @@
+name: Bug report
+description: Algo no funciona como debería
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Completá el formulario con la mayor precisión posible. Cuanto más detalle, más rápido se resuelve.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: ¿Qué está pasando?
+      description: Descripción clara y concisa del problema.
+      placeholder: "Al hacer X, ocurre Y en lugar de Z."
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Pasos para reproducir
+      description: Secuencia exacta que reproduce el problema.
+      placeholder: |
+        1. Ir a '...'
+        2. Hacer click en '...'
+        3. Ver el error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Comportamiento esperado
+      description: ¿Qué debería pasar?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Comportamiento actual
+      description: ¿Qué está pasando en realidad?
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Entorno
+      description: Versión, OS, navegador, stack relevante.
+      placeholder: |
+        - OS: Ubuntu 24.04 / macOS 14 / Windows 11
+        - Versión: 1.2.3
+        - Runtime: Python 3.12 / Node 20 / Java 21
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / stack trace
+      description: Pegá el error completo. Se formatea automáticamente como código.
+      render: shell
+    validations:
+      required: false
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severidad
+      options:
+        - Crítico (producción caída / pérdida de datos)
+        - Alto (funcionalidad principal rota)
+        - Medio (workaround disponible)
+        - Bajo (cosmético / menor)
+    validations:
+      required: true

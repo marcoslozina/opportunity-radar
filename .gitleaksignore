@@ -1,0 +1,3 @@
+# Fingerprints de falsos positivos — ejemplos de documentación en skills
+# Formato: <commit>:<archivo>:<rule>:<línea>
+da0c67a4f45c849f3fd86099707ed16fa6c815e6:.claude/skills/role-security/SKILL.md:generic-api-key:65

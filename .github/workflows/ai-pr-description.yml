@@ -1,0 +1,96 @@
+name: AI PR Description
+
+on:
+  pull_request:
+    types: [opened]
+
+jobs:
+  describe:
+    name: Auto-generate PR description
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+      models: read
+
+    # Solo si la descripción está vacía o tiene menos de 50 caracteres
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Check if description is empty
+        id: check
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          if [ ${#PR_BODY} -lt 50 ]; then
+            echo "empty=true" >> $GITHUB_OUTPUT
+          else
+            echo "empty=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Get diff for context
+        if: steps.check.outputs.empty == 'true'
+        run: git diff origin/${{ github.base_ref }}...HEAD > pr_diff.txt
+
+      - name: Generate description with GitHub Models
+        if: steps.check.outputs.empty == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          pip install -q openai
+          python3 - <<'EOF' > description.txt
+          from openai import OpenAI
+          import os
+
+          client = OpenAI(
+              base_url="https://models.inference.ai.azure.com",
+              api_key=os.environ["GITHUB_TOKEN"],
+          )
+          diff = open("pr_diff.txt").read()[:6000]
+          title = os.environ["PR_TITLE"]
+
+          response = client.chat.completions.create(
+              model="gpt-4o-mini",
+              max_tokens=1024,
+              messages=[
+                  {"role": "system", "content": """Generás descripciones de PRs concisas y técnicas.
+          Formato obligatorio (markdown):
+
+          ## ¿Qué hace este PR?
+          [1-2 oraciones. Qué cambia y por qué.]
+
+          ## Cambios principales
+          - [bullet con el cambio más importante]
+          - [bullet]
+          - [bullet]
+
+          ## Tipo de cambio
+          - [ ] feat / fix / arch / refactor / test / docs
+
+          ## Cómo probar
+          1. [paso concreto]
+          2. [paso concreto]
+
+          Sin relleno. Solo lo que está en el diff."""},
+                  {"role": "user", "content": f"Título: {title}\n\nDiff:\n```diff\n{diff}\n```"}
+              ]
+          )
+          print(response.choices[0].message.content)
+          EOF
+
+      - name: Update PR description
+        if: steps.check.outputs.empty == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs')
+            const description = fs.readFileSync('description.txt', 'utf8')
+            await github.rest.pulls.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+              body: description + '\n\n---\n*Descripción generada automáticamente — editá si hace falta*'
+            })

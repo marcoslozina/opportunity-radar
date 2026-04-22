@@ -1,0 +1,62 @@
+# ── Python ────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ── Java ──────────────────────────────────────────────
+.gradle/
+*.class
+*.jar
+!gradle/wrapper/gradle-wrapper.jar
+.idea/
+*.iml
+
+# ── Node / TypeScript ─────────────────────────────────
+node_modules/
+.next/
+.nuxt/
+coverage/
+*.tsbuildinfo
+
+# ── Go ────────────────────────────────────────────────
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+vendor/
+
+# ── Secrets y entorno ─────────────────────────────────
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+
+# ── Logs y temporales ─────────────────────────────────
+*.log
+*.tmp
+*.swp
+*.swo
+
+# ── OS ────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── IDEs ──────────────────────────────────────────────
+.vscode/
+*.suo
+*.user

@@ -1,0 +1,106 @@
+name: AI Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  review:
+    name: Claude Code Review
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+      models: read
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Get PR diff
+        id: diff
+        run: |
+          git diff origin/${{ github.base_ref }}...HEAD > pr_diff.txt
+          echo "lines=$(wc -l < pr_diff.txt)" >> $GITHUB_OUTPUT
+
+      - name: Skip if diff too large
+        if: steps.diff.outputs.lines > 2000
+        run: |
+          echo "⚠️ Diff muy grande (>2000 líneas). Review manual requerido."
+          exit 0
+
+      - name: GitHub Models AI Review
+        if: steps.diff.outputs.lines <= 2000
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          pip install -q openai
+          REVIEW=$(python3 - <<'EOF'
+          from openai import OpenAI
+          import os
+
+          client = OpenAI(
+              base_url="https://models.inference.ai.azure.com",
+              api_key=os.environ["GITHUB_TOKEN"],
+          )
+
+          diff = open("pr_diff.txt").read()
+
+          response = client.chat.completions.create(
+              model="gpt-4o-mini",
+              max_tokens=2048,
+              messages=[
+                  {"role": "system", "content": """Sos un Senior Architect haciendo code review.
+          Revisá el diff con criterio técnico real. Sin comentarios positivos genéricos.
+
+          Para cada problema encontrado usá este formato exacto:
+
+          🔴 CRÍTICO — `archivo:línea`
+          **Problema:** descripción en una línea
+          **Impacto:** qué puede pasar si no se corrige
+          **Fix:** `código corregido`
+
+          🟡 IMPORTANTE — `archivo:línea`
+          **Problema:** ...
+          **Fix:** ...
+
+          🔵 SUGERENCIA — `archivo:línea`
+          **Contexto:** ...
+          **Mejora:** ...
+
+          Verificar en orden:
+          1. Secrets hardcodeados (API keys, passwords, tokens)
+          2. PII en logs o responses
+          3. Lógica de negocio fuera del dominio
+          4. Violaciones de la regla de dependencia entre capas
+          5. Queries N+1
+          6. Input sin validar
+          7. Autorización no verificada
+          8. Tests que no verifican comportamiento real
+
+          Si no hay problemas reales: responder solo "✅ Sin problemas críticos detectados."
+          Sin relleno, sin resumen positivo."""},
+                  {"role": "user", "content": f"Revisá este diff:\n\n```diff\n{diff[:8000]}\n```"}
+              ]
+          )
+          print(response.choices[0].message.content)
+          EOF
+          )
+
+          echo "REVIEW<<EOF" >> $GITHUB_ENV
+          echo "$REVIEW" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Post review comment
+        if: steps.diff.outputs.lines <= 2000
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const review = process.env.REVIEW
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `## 🤖 AI Code Review\n\n${review}\n\n---\n*Revisión automática — validar con criterio humano antes de mergear*`
+            })

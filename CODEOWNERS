@@ -1,0 +1,40 @@
+# CODEOWNERS — define quién debe revisar qué partes del repo
+# Documentación: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+#
+# Reemplazá @handle con los usernames reales del equipo.
+# El primer match que aplica gana — el orden importa.
+
+# ── Fallback global ─────────────────────────────────────────────
+*                           @tech-lead
+
+# ── Decisiones de arquitectura ──────────────────────────────────
+docs/adr/                   @tech-lead @architect
+
+# ── Seguridad y privacidad ──────────────────────────────────────
+**/security/                @security-lead
+**/auth/                    @security-lead
+**/crypto/                  @security-lead
+.github/workflows/          @tech-lead @devops-lead
+
+# ── Infraestructura ─────────────────────────────────────────────
+infra/                      @devops-lead
+**/Dockerfile               @devops-lead
+docker-compose*.yml         @devops-lead
+
+# ── Configuración del agente AI ─────────────────────────────────
+.claude/                    @tech-lead
+CLAUDE.md                   @tech-lead
+AGENTS.md                   @tech-lead
+
+# ── Dependencias ────────────────────────────────────────────────
+package.json                @tech-lead
+package-lock.json           @tech-lead
+pyproject.toml              @tech-lead
+pom.xml                     @tech-lead
+build.gradle                @tech-lead
+go.mod                      @tech-lead
+go.sum                      @tech-lead
+
+# ── Documentación ───────────────────────────────────────────────
+docs/                       @tech-lead
+*.md                        @tech-lead

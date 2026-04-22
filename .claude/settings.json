@@ -1,0 +1,41 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git status)",
+      "Bash(git log *)",
+      "Bash(git diff *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git fetch *)",
+      "Bash(git branch *)",
+      "Bash(git checkout *)",
+      "Bash(git stash *)",
+      "Bash(git merge *)",
+      "Bash(git rebase *)",
+      "Bash(uv *)",
+      "Bash(python *)",
+      "Bash(pytest *)",
+      "Bash(ruff *)",
+      "Bash(mypy *)",
+      "Bash(go *)",
+      "Bash(gradle *)",
+      "Bash(mvn *)",
+      "Bash(npm *)",
+      "Bash(node *)",
+      "Bash(docker build *)",
+      "Bash(docker compose *)",
+      "Bash(mkdir *)",
+      "Bash(touch *)",
+      "Bash(eza *)",
+      "Bash(fd *)",
+      "Bash(rg *)"
+    ],
+    "deny": [
+      "Bash(git push *)",
+      "Bash(git push)",
+      "Bash(git reset --hard *)",
+      "Bash(git clean *)",
+      "Bash(rm -rf *)"
+    ]
+  }
+}

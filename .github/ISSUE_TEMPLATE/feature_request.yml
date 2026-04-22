@@ -1,0 +1,66 @@
+name: Feature request
+description: Propuesta de nueva funcionalidad o mejora
+labels: ["enhancement", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Antes de proponer, revisá si ya existe un issue similar o un ADR relacionado en `docs/adr/`.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: ¿Qué problema resuelve?
+      description: Describí el problema o fricción actual. No empieces por la solución.
+      placeholder: "Cuando necesito hacer X, tengo que Y manualmente porque no existe Z."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Solución propuesta
+      description: ¿Cómo lo resolverías? Sé específico.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternativas consideradas
+      description: ¿Qué otras opciones evaluaste y por qué las descartaste?
+    validations:
+      required: false
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: Tipo de cambio
+      options:
+        - Nueva funcionalidad
+        - Mejora de funcionalidad existente
+        - Cambio de arquitectura (requerirá ADR)
+        - Mejora de performance
+        - Developer experience (DX)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: effort
+    attributes:
+      label: Estimación de esfuerzo
+      options:
+        - Pequeño (horas)
+        - Mediano (días)
+        - Grande (semanas)
+        - No sé
+    validations:
+      required: false
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Contexto adicional
+      description: Mockups, referencias, links, o cualquier contexto relevante.
+    validations:
+      required: false

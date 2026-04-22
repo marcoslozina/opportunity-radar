@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Preguntas y discusión
+    url: https://github.com/marcoslozina/sdd-claude-template/discussions
+    about: Para preguntas generales o ideas que no son bugs ni features concretas.
+  - name: Documentación
+    url: https://github.com/marcoslozina/sdd-claude-template/blob/main/README.md
+    about: Revisá el README antes de abrir un issue.
