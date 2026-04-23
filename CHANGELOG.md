@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased] - 2026-04-23
+### Added
+- Streamlit dashboard with category-based niche discovery
+- Product discovery domain for monetization opportunities
+- Opportunity radar scoring engine
+
 ## [Unreleased] - 2026-04-22
 ### Added
 - Add product discovery domain for monetization opportunities.
