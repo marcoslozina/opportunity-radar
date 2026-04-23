@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 
-from serpapi import GoogleSearch
+from serpapi import Client
 
 from config import settings
 from domain.ports.trend_data_port import TrendDataPort
@@ -20,8 +20,8 @@ class SerpAdapter(TrendDataPort):
 
     def _fetch(self, keyword: str) -> list[TrendSignal]:
         try:
-            search = GoogleSearch({"q": keyword, "api_key": settings.serp_api_key})
-            results = search.get_dict()
+            client = Client(api_key=settings.serp_api_key)
+            results = client.search({"engine": "google", "q": keyword})
 
             signals: list[TrendSignal] = []
             now = datetime.now(tz=timezone.utc)

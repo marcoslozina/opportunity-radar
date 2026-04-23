@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 from datetime import datetime, timezone
 
-from serpapi import GoogleSearch
+from serpapi import Client
 
 from config import Settings
 from domain.ports.trend_data_port import TrendDataPort
@@ -38,10 +38,8 @@ class SerpProductAdapter(TrendDataPort):
 
         for query in queries:
             try:
-                search = GoogleSearch(
-                    {"q": query, "api_key": self._settings.serp_api_key}
-                )
-                results = search.get_dict()
+                client = Client(api_key=self._settings.serp_api_key)
+                results = client.search({"engine": "google", "q": query})
                 organic = results.get("organic_results", [])
                 # Prefer total_results from search_information if available
                 search_info = results.get("search_information", {})

@@ -1,51 +1,79 @@
-# Makefile — comandos unificados del proyecto
-# Adaptar según el stack elegido en el setup de sesión
+# Makefile — opportunity-radar
+# Stack: Python / uv / FastAPI / Streamlit / Alembic
 
-.PHONY: help dev test test-unit test-integration lint format typecheck build clean
+.PHONY: help dev dash migrate \
+        run-pipeline run-content run-product \
+        test test-unit test-int \
+        lint format typecheck \
+        clean
 
-## ── Ayuda ────────────────────────────────────────────
-help:
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
+## ── Ayuda ────────────────────────────────────────────────────────────────────
+help: ## Lista todos los comandos con descripción
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
+		| awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
-## ── Desarrollo ───────────────────────────────────────
-dev: ## Levantar el servidor de desarrollo
-	@echo "Adaptar según el stack: uvicorn / npm run dev / gradle bootRun"
+## ── Desarrollo ───────────────────────────────────────────────────────────────
+dev: ## Levantar uvicorn con --reload (PYTHONPATH=src)
+	PYTHONPATH=src uv run uvicorn src.main:app --reload --host 0.0.0.0 --port 8000
 
-## ── Tests ────────────────────────────────────────────
-test: lint test-unit test-integration ## Correr todos los checks (lint + tests)
+dash: ## Levantar el dashboard de Streamlit
+	uv run streamlit run dashboard.py
 
-test-unit: ## Correr solo tests unitarios
-	@echo "Python: pytest tests/unit/"
-	@echo "Java:   ./gradlew test"
-	@echo "Node:   npm run test:unit"
+migrate: ## Aplicar migraciones de Alembic (alembic upgrade head)
+	uv run alembic upgrade head
 
-test-integration: ## Correr tests de integración (requiere Docker)
-	@echo "Python: pytest tests/integration/"
-	@echo "Java:   ./gradlew integrationTest"
-	@echo "Node:   npm run test:integration"
+## ── Pipeline (requiere servidor corriendo en :8000) ──────────────────────────
+run-pipeline: ## Correr content + product pipeline para un nicho (niche=<uuid>)
+	@if [ -z "$(niche)" ]; then \
+		echo "Error: pasá el niche id: make run-pipeline niche=<uuid>"; \
+		exit 1; \
+	fi
+	curl -s -X POST http://localhost:8000/pipeline/run/$(niche) \
+	  -H "Content-Type: application/json" \
+	  -d '{"mode": "both"}' | python3 -m json.tool
 
-## ── Calidad de código ────────────────────────────────
-lint: ## Correr linter
-	@echo "Python: ruff check src/"
-	@echo "Java:   ./gradlew checkstyleMain"
-	@echo "Node:   npm run lint"
+run-content: ## Correr solo el content pipeline para un nicho (niche=<uuid>)
+	@if [ -z "$(niche)" ]; then \
+		echo "Error: pasá el niche id: make run-content niche=<uuid>"; \
+		exit 1; \
+	fi
+	curl -s -X POST http://localhost:8000/pipeline/run/$(niche) \
+	  -H "Content-Type: application/json" \
+	  -d '{"mode": "content"}' | python3 -m json.tool
 
-format: ## Formatear código
-	@echo "Python: ruff format src/"
-	@echo "Node:   npm run format"
+run-product: ## Correr solo el product pipeline para un nicho (niche=<uuid>)
+	@if [ -z "$(niche)" ]; then \
+		echo "Error: pasá el niche id: make run-product niche=<uuid>"; \
+		exit 1; \
+	fi
+	curl -s -X POST http://localhost:8000/pipeline/run/$(niche) \
+	  -H "Content-Type: application/json" \
+	  -d '{"mode": "product"}' | python3 -m json.tool
 
-typecheck: ## Verificar tipos
-	@echo "Python: mypy src/"
-	@echo "Node:   tsc --noEmit"
+## ── Tests ────────────────────────────────────────────────────────────────────
+test: lint test-unit test-int ## Correr lint + tests unitarios + tests de integración
 
-## ── Build ────────────────────────────────────────────
-build: ## Build del proyecto
-	@echo "Python: uv build"
-	@echo "Java:   ./gradlew build"
-	@echo "Node:   npm run build"
+test-unit: ## Correr solo tests/unit/
+	PYTHONPATH=src uv run pytest tests/unit/ -v
 
-## ── Limpieza ─────────────────────────────────────────
-clean: ## Limpiar artefactos de build
-	@echo "Python: rm -rf dist/ build/ __pycache__/"
-	@echo "Java:   ./gradlew clean"
-	@echo "Node:   rm -rf dist/ node_modules/.cache"
+test-int: ## Correr solo tests/integration/
+	PYTHONPATH=src uv run pytest tests/integration/ -v
+
+## ── Calidad de código ────────────────────────────────────────────────────────
+lint: ## Verificar estilo con ruff (ruff check src/)
+	uv run ruff check src/
+
+format: ## Formatear código con ruff (ruff format src/)
+	uv run ruff format src/
+
+typecheck: ## Verificar tipos con mypy (mypy src/)
+	uv run mypy src/
+
+## ── Limpieza ─────────────────────────────────────────────────────────────────
+clean: ## Limpiar __pycache__, .pytest_cache, dist/, .mypy_cache
+	find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+	find . -type d -name ".pytest_cache" -exec rm -rf {} + 2>/dev/null || true
+	find . -type d -name ".mypy_cache" -exec rm -rf {} + 2>/dev/null || true
+	find . -type d -name "dist" -exec rm -rf {} + 2>/dev/null || true
+	find . -name "*.pyc" -delete 2>/dev/null || true
+	@echo "Limpieza completa."

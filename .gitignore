@@ -65,3 +65,6 @@ desktop.ini
 .vscode/
 *.suo
 *.user
+
+# ── Streamlit ─────────────────────────────────────────
+.streamlit/
