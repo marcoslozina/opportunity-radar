@@ -1,7 +1,7 @@
 [project]
-name = "opportunity-radar"
+name = "propflow"
 version = "0.1.0"
-description = "AI-powered opportunity scoring engine for creators and indie makers"
+description = "AI-powered real estate and generic opportunity radar"
 requires-python = ">=3.12"
 dependencies = [
     "aiosqlite>=0.22.1",

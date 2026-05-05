@@ -20,6 +20,8 @@ class Opportunity:
     topic: str
     score: OpportunityScore
     recommended_action: str = field(default="")
+    domain_applicability: str = field(default="")
+    domain_reasoning: str = field(default="")
 
     @classmethod
     def create(cls, topic: str, score: OpportunityScore) -> Opportunity:

@@ -1,6 +1,6 @@
-# Opportunity Radar
+# PropFlow
 
-AI-powered opportunity scoring engine para creators e indie makers. Analiza tendencias, competencia y señales de monetización para encontrar los topics con mayor oportunidad — entregado como briefing semanal con acciones concretas.
+AI-powered real estate and generic opportunity radar. Analiza tendencias, competencia, nivel de frustración y señales de monetización para encontrar los topics con mayor oportunidad — entregado como briefing semanal con acciones concretas.
 
 Incluye dos modos de análisis:
 - **Content** — encontrá sobre qué crear contenido (top 10 por Opportunity Score)
@@ -44,8 +44,8 @@ Categoría → Claude sugiere nichos → Claude genera keywords
 ### Instalación
 
 ```bash
-git clone https://github.com/marcoslozina/opportunity-radar
-cd opportunity-radar
+git clone https://github.com/marcoslozina/propFlow
+cd propFlow
 uv sync
 ```
 

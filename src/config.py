@@ -18,5 +18,32 @@ class Settings(BaseSettings):
     serp_api_key: str = ""
     product_hunt_token: str = ""
 
+    # Niche Keywords
+    propflow_keywords_ar: list[str] = [
+        "crédito hipotecario Argentina",
+        "invertir en propiedades Argentina",
+        "comprar departamento Misiones",
+        "alquiler vs compra Argentina",
+        "UVA hipotecario 2025",
+        "propiedades en Posadas Misiones",
+        "calculadora crédito hipotecario",
+        "ROI inmobiliario Argentina",
+        "Banco Nación hipotecario",
+        "cómo invertir en inmuebles con poco capital",
+    ]
+
+    esg_keywords_latam: list[str] = [
+        "NIS30 Mexico empresas",
+        "SFDR compliance latinoamerica",
+        "CBAM carbon border adjustment Mexico",
+        "CVM 193 Brasil ESG",
+        "reporte de sostenibilidad obligatorio Argentina",
+        "calculadora huella de carbono empresa",
+        "como medir scope 1 scope 2 scope 3",
+        "software ESG pymes latinoamerica",
+        "herramienta ESG en español",
+        "reporte ESG sin consultora",
+    ]
+
 
 settings = Settings()

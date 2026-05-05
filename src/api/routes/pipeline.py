@@ -55,7 +55,6 @@ async def _run_content_pipeline(niche_id_str: str) -> None:
                     SerpAdapter(),
                 ],
                 insight_port=ClaudeInsightAdapter(),
-                scoring_engine=ScoringEngine(),
             )
             await use_case.execute(NicheId(UUID(niche_id_str)))
             logger.info("Manual content pipeline completed for niche_id=%s", niche_id_str)

@@ -26,13 +26,11 @@ class RunPipelineUseCase:
         briefing_repo: BriefingRepository,
         collectors: list[TrendDataPort],
         insight_port: InsightPort,
-        scoring_engine: ScoringEngine,
     ) -> None:
         self._niche_repo = niche_repo
         self._briefing_repo = briefing_repo
         self._collectors = collectors
         self._insight_port = insight_port
-        self._scoring_engine = scoring_engine
 
     async def execute(self, niche_id: NicheId) -> Briefing:
         niche = await self._niche_repo.find_by_id(niche_id)
@@ -40,7 +38,11 @@ class RunPipelineUseCase:
             raise NicheNotFoundError(f"Niche {niche_id} not found")
 
         signals = await self._collect_all(niche.keywords)
-        scores = self._scoring_engine.score(signals)
+        
+        # Use factory to get the correct engine
+        from application.services.scoring_engine import ScoringFactory
+        engine = ScoringFactory.get_engine(niche.discovery_mode)
+        scores = engine.score(signals)
 
         opportunities = [
             Opportunity.create(topic=topic, score=score)
@@ -48,9 +50,7 @@ class RunPipelineUseCase:
         ]
 
         if opportunities:
-            actions = await self._insight_port.synthesize(opportunities)
-            for opportunity, action in zip(opportunities, actions):
-                opportunity.recommended_action = action
+            await self._insight_port.synthesize(opportunities, niche.discovery_mode)
 
         briefing = Briefing.create(niche_id=niche_id, opportunities=opportunities)
         await self._briefing_repo.save(briefing)

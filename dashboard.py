@@ -4,6 +4,12 @@ import httpx
 import streamlit as st
 import plotly.graph_objects as go
 import pandas as pd
+import sys
+import os
+
+# Añadir src al path para que Streamlit encuentre los módulos
+sys.path.append(os.path.join(os.path.dirname(__file__), "src"))
+from infrastructure.niche_templates import TEMPLATES
 
 # ---------------------------------------------------------------------------
 # Config
@@ -53,8 +59,8 @@ CONFIDENCE_COLORS = {
 
 st.set_page_config(
     layout="wide",
-    page_title="Opportunity Radar",
-    page_icon="📡",
+    page_title="PropFlow",
+    page_icon="🏠",
     initial_sidebar_state="expanded",
 )
 
@@ -415,6 +421,29 @@ def _wiz_step0():
                     st.session_state.wiz_step = 1
                     st.rerun()
 
+    st.markdown("---")
+    st.markdown("**O usá una plantilla predefinida:**")
+    cols = st.columns(len(TEMPLATES))
+    for col, (tid, t) in zip(cols, TEMPLATES.items()):
+        with col:
+            st.markdown(
+                f'<div class="card card-hover" style="margin-bottom:8px;min-height:100px">'
+                f'<p style="margin:0 0 4px;font-weight:700">{t.name}</p>'
+                f'<p style="margin:0 0 6px;color:#94A3B8;font-size:0.83rem">{t.description}</p>'
+                f"</div>",
+                unsafe_allow_html=True,
+            )
+            if st.button(f"Usar {t.name}", key=f"wiz_template_{tid}", use_container_width=True):
+                st.session_state.wiz_category = "Templates"
+                st.session_state.wiz_selected_niche = {"name": t.name, "description": t.description}
+                st.session_state.wiz_suggested_keywords = t.keywords
+                st.session_state.wiz_checked_keywords = list(t.keywords)
+                st.session_state.wiz_extra_keywords = []
+                st.session_state.wiz_mode = "content"
+                # For templates, we can jump directly or let them check KWs
+                st.session_state.wiz_step = 2
+                st.rerun()
+
 
 def _wiz_step1():
     """Paso 1 — Cards de nichos sugeridos."""
@@ -536,10 +565,17 @@ def _wiz_step2():
 
 def _wiz_step3_create(niche_name: str, all_kws: list[str], mode: str):
     """Paso 3 — Creación y éxito (se ejecuta inline desde paso 2 al confirmar)."""
+    # Detect discovery_mode from TEMPLATES if matching name
+    discovery_mode = mode
+    for t in TEMPLATES.values():
+        if t.name == niche_name:
+            discovery_mode = t.discovery_mode
+            break
+
     payload = {
         "name": niche_name,
         "keywords": all_kws,
-        "discovery_mode": mode,
+        "discovery_mode": discovery_mode,
     }
     data, status = _post("/niches", payload)
     if data is not None:
@@ -570,8 +606,8 @@ def render_create_niche_wizard():
 def render_sidebar() -> tuple[str, int | None]:
     with st.sidebar:
         st.markdown(
-            '<div style="font-size:2.2rem;text-align:center;padding:8px 0 4px">📡</div>'
-            '<div style="font-size:1.1rem;font-weight:700;text-align:center;letter-spacing:0.04em;margin-bottom:4px">Opportunity Radar</div>',
+            '<div style="font-size:2.2rem;text-align:center;padding:8px 0 4px">🏠</div>'
+            '<div style="font-size:1.1rem;font-weight:700;text-align:center;letter-spacing:0.04em;margin-bottom:4px">PropFlow</div>',
             unsafe_allow_html=True,
         )
 
@@ -855,7 +891,7 @@ def render_content_briefing(niche_id: int | None):
     for opp in rows:
         s = opp["score"]
         confidence = s.get("confidence", "medium")
-        c_topic, c_score, c_conf, c_action = st.columns([3, 2, 1.5, 3])
+        c_topic, c_score, c_conf, c_meta = st.columns([3, 2, 1.5, 3])
 
         with c_topic:
             st.markdown(f"**{opp['topic']}**")
@@ -869,11 +905,21 @@ def render_content_briefing(niche_id: int | None):
                 badge(confidence, CONFIDENCE_COLORS.get(confidence, PALETTE["muted"])),
                 unsafe_allow_html=True,
             )
-        with c_action:
-            st.markdown(
-                f"<small style='color:#94A3B8'>{opp.get('recommended_action', '—')}</small>",
-                unsafe_allow_html=True,
-            )
+        with c_meta:
+            applicability = opp.get("domain_applicability")
+            if applicability:
+                st.markdown(badge(applicability, PALETTE["purple"]), unsafe_allow_html=True)
+            else:
+                st.markdown(f"<small style='color:#94A3B8'>{opp.get('recommended_action', '—')}</small>", unsafe_allow_html=True)
+        
+        with st.expander("Ver razonamiento y detalle"):
+            col_a, col_b = st.columns(2)
+            with col_a:
+                st.markdown("**Acción:**")
+                st.info(opp.get("recommended_action", "—"))
+            with col_b:
+                st.markdown("**Razonamiento:**")
+                st.markdown(f"<small style='color:#94A3B8'>{opp.get('domain_reasoning', '—')}</small>", unsafe_allow_html=True)
 
     st.markdown(" ")
 
@@ -1061,11 +1107,13 @@ def render_raw_opportunities(niche_id: int | None):
             {
                 "Topic": opp["topic"],
                 "Trend Velocity": round(s.get("trend_velocity", 0), 2),
+                "Frustration": round(s.get("frustration_level", 0), 2),
                 "Competition Gap": round(s.get("competition_gap", 0), 2),
                 "Social Signal": round(s.get("social_signal", 0), 2),
                 "Monetization Intent": round(s.get("monetization_intent", 0), 2),
                 "Total": round(s.get("total", 0), 2),
                 "Confidence": confidence,
+                "Applicability": opp.get("domain_applicability", ""),
             }
         )
 
@@ -1086,7 +1134,7 @@ def render_raw_opportunities(niche_id: int | None):
             return f"color: {PALETTE['warning']}"
         return f"color: {PALETTE['danger']}"
 
-    score_cols = ["Trend Velocity", "Competition Gap", "Social Signal", "Monetization Intent", "Total"]
+    score_cols = ["Trend Velocity", "Frustration", "Competition Gap", "Social Signal", "Monetization Intent", "Total"]
     styled = (
         df.style
         .map(color_confidence, subset=["Confidence"])

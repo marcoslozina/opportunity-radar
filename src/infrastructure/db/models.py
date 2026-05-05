@@ -65,9 +65,12 @@ class OpportunityModel(Base):
     competition_gap: Mapped[float] = mapped_column(Float, nullable=False)
     social_signal: Mapped[float] = mapped_column(Float, nullable=False)
     monetization_intent: Mapped[float] = mapped_column(Float, nullable=False)
+    frustration_level: Mapped[float] = mapped_column(Float, nullable=False, default=0.0, server_default="0.0")
     total: Mapped[float] = mapped_column(Float, nullable=False)
     confidence: Mapped[str] = mapped_column(String(10), nullable=False)
     recommended_action: Mapped[str] = mapped_column(Text, default="")
+    domain_applicability: Mapped[str] = mapped_column(String(50), nullable=False, default="", server_default="")
+    domain_reasoning: Mapped[str] = mapped_column(Text, nullable=False, default="", server_default="")
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
     briefing: Mapped[BriefingModel] = relationship(
