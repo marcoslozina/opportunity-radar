@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from uuid import UUID, uuid4
 
+from domain.value_objects.evidence_item import EvidenceItem
 from domain.value_objects.opportunity_score import OpportunityScore
 
 
@@ -22,6 +23,7 @@ class Opportunity:
     recommended_action: str = field(default="")
     domain_applicability: str = field(default="")
     domain_reasoning: str = field(default="")
+    evidence: list[EvidenceItem] = field(default_factory=list)
 
     @classmethod
     def create(cls, topic: str, score: OpportunityScore) -> Opportunity:
