@@ -2,6 +2,21 @@
 
 ## [Unreleased] - 2026-05-06
 ### Added
+- IP-based brute force lockout for API key auth
+- X-Request-ID middleware
+- Block SQLite in production environment
+- Resend welcome email on subscription_created
+- Audit log billing events for subscription_created
+- TrustedHostMiddleware with TRUSTED_HOSTS config
+- CORS middleware — allow app.marcoslozina.com and radar.marcoslozina.com
+
+### Fixed
+- Read real client IP from CF-Connecting-IP for brute force lockout
+- Replace deprecated utcnow() with timezone-aware now(timezone.utc)
+- Replace utcnow() with timezone-aware datetime.now(timezone.utc)
+
+## [Unreleased] - 2026-05-06
+### Added
 - Add Resend welcome email on subscription_created
 - Audit log billing events for subscription_created
 - Add TrustedHostMiddleware with TRUSTED_HOSTS config
