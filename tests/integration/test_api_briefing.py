@@ -85,3 +85,32 @@ async def test_get_briefing_when_exists_then_200(client: TestClient, session: As
 async def test_get_briefing_when_not_found_then_404(client: TestClient) -> None:
     resp = client.get(f"/briefing/{uuid4()}")
     assert resp.status_code == 404
+
+
+async def test_get_briefing_when_exists_then_dna_field_is_present(
+    client: TestClient, session: AsyncSession
+) -> None:
+    niche = Niche.create("React", ["react hooks"])
+    await SQLNicheRepository(session).save(niche)
+
+    opp = Opportunity.create(topic="react hooks", score=_make_score())
+    opp.recommended_action = "Crear curso"
+    briefing = Briefing.create(niche_id=niche.id, opportunities=[opp])
+    await SQLBriefingRepository(session).save(briefing)
+
+    resp = client.get(f"/briefing/{niche.id}")
+    assert resp.status_code == 200
+    data = resp.json()
+
+    dna = data["opportunities"][0]["dna"]
+    assert dna is not None
+    assert isinstance(dna["archetype"], str) and dna["archetype"] != ""
+    assert isinstance(dna["archetype_description"], str) and dna["archetype_description"] != ""
+    assert isinstance(dna["dominant_signal"], str) and dna["dominant_signal"] != ""
+
+    dims = dna["dimensions"]
+    expected_keys = {"trend_velocity", "competition_gap", "social_signal",
+                     "monetization_intent", "frustration_level"}
+    assert set(dims.keys()) == expected_keys
+    for key in expected_keys:
+        assert isinstance(dims[key], float | int)

@@ -33,12 +33,28 @@ class EvidenceItemResponse(BaseModel):
     collected_at: str  # ISO 8601 string — simpler than datetime for JSON clients
 
 
+class DimensionsResponse(BaseModel):
+    trend_velocity: float
+    competition_gap: float
+    social_signal: float
+    monetization_intent: float
+    frustration_level: float  # previously omitted from score response — now exposed in DNA
+
+
+class OpportunityDNAResponse(BaseModel):
+    archetype: str
+    archetype_description: str
+    dimensions: DimensionsResponse
+    dominant_signal: str
+
+
 class OpportunityResponse(BaseModel):
     id: str
     topic: str
     score: OpportunityScoreResponse
     recommended_action: str
     trajectory: ScoreTrajectoryResponse | None = None
+    dna: OpportunityDNAResponse | None = None
     evidence: list[EvidenceItemResponse] = []
 
 
