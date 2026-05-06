@@ -2,6 +2,30 @@
 
 ## [Unreleased] - 2026-05-06
 ### Added
+- add TrustedHostMiddleware with TRUSTED_HOSTS config
+- add CORS middleware — allow app.marcoslozina.com and radar.marcoslozina.com
+- dual-write to shared Supabase portal on subscription create
+- billing layer, tiers, quota, rate limits, domain rename
+- add threshold-based alert system with webhook and email delivery
+- add opportunity DNA archetype fingerprint
+- add trend trajectory to opportunity briefings
+- add evidence panel to surface scoring justification per opportunity
+- add API keys authentication layer for external vertical consumers
+- rebrand to PropFlow and implement real estate niche expansion
+
+### Fixed
+- replace utcnow() with timezone-aware datetime.now(timezone.utc)
+- update LS_SUCCESS_URL to portal central with product=opportunity-radar
+- add src to pytest pythonpath
+
+### Changed
+- make client injectable in provision_to_portal
+- make _key_cache injectable via _make_get_api_key factory
+- move niche keywords from Settings to niche_keywords.json
+- rename propflow discovery_mode to real_estate
+
+## [Unreleased] - 2026-05-06
+### Added
 - Add CORS middleware — allow app.marcoslozina.com and radar.marcoslozina.com
 - Dual-write to shared Supabase portal on subscription create
 - Billing layer, tiers, quota, rate limits, domain rename
