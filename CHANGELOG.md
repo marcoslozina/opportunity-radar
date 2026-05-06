@@ -2,6 +2,24 @@
 
 ## [Unreleased] - 2026-05-06
 ### Added
+- Link to demo page from hero CTA on landing page.
+- Interactive alert demo page for Opportunity Radar.
+- Marketing landing page for Opportunity Radar.
+- CircuitBreaker for Redis to avoid timeout cascade.
+- Monitoring documentation (MONITORING.md) for uptime, Sentry, billing alerts, and log commands.
+- IP-based brute force lockout for API key authentication.
+- X-Request-ID middleware for observability.
+- Functionality to block SQLite in production environments.
+- Resend welcome email on subscription creation.
+- Audit log for billing events on subscription creation.
+- TrustedHostMiddleware with TRUSTED_HOSTS configuration.
+
+### Fixed
+- Read real client IP from CF-Connecting-IP for brute force lockout.
+- Replaced deprecated utcnow() with timezone-aware now(timezone.utc).
+
+## [Unreleased] - 2026-05-06
+### Added
 - Add marketing landing page for Opportunity Radar
 - Add CircuitBreaker for Redis — avoid timeout cascade
 - Add MONITORING.md — uptime, Sentry, billing alerts, log commands
