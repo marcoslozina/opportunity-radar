@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from unittest.mock import AsyncMock, MagicMock, patch
 
 from cachetools import TTLCache
@@ -75,7 +75,7 @@ def test_get_api_key_when_key_revoked_then_401() -> None:
 
 
 def test_get_api_key_when_key_expired_then_401() -> None:
-    expired_key = _active_key(expires_at=datetime.utcnow() - timedelta(hours=1))
+    expired_key = _active_key(expires_at=datetime.now(timezone.utc) - timedelta(hours=1))
     test_app, mock_instance = _make_test_app(find_by_hash_return=expired_key)
     with patch("api.dependencies.api_key.SqlApiKeyRepository") as MockRepo:
         MockRepo.return_value = mock_instance

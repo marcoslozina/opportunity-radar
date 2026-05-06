@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 import pytest
 
@@ -39,7 +39,7 @@ def test_is_valid_returns_false_when_inactive() -> None:
 
 
 def test_is_valid_returns_false_when_expired() -> None:
-    past = datetime.utcnow() - timedelta(hours=1)
+    past = datetime.now(timezone.utc) - timedelta(hours=1)
     entity, _ = ApiKey.generate(client_name="propflow", scopes=[], expires_at=past)
     assert entity.is_valid() is False
 
@@ -50,7 +50,7 @@ def test_is_valid_returns_true_when_active_and_no_expiry() -> None:
 
 
 def test_is_valid_returns_true_when_active_and_future_expiry() -> None:
-    future = datetime.utcnow() + timedelta(days=365)
+    future = datetime.now(timezone.utc) + timedelta(days=365)
     entity, _ = ApiKey.generate(client_name="propflow", scopes=[], expires_at=future)
     assert entity.is_valid() is True
 
