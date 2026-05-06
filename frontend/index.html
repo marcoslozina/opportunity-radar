@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Opportunity Radar — Llegá primero. Siempre.</title>
+  <meta name="description" content="Inteligencia de ventas B2B para LATAM. Detectá oportunidades antes que tu competencia." />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://radar.marcoslozina.com/" />
+  <meta property="og:title" content="Opportunity Radar — Llegá primero. Siempre." />
+  <meta property="og:description" content="Inteligencia de ventas B2B para LATAM. Detectá oportunidades antes que tu competencia." />
+  <meta property="og:image" content="https://radar.marcoslozina.com/og-image.png" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Opportunity Radar — Llegá primero. Siempre." />
+  <meta name="twitter:description" content="Inteligencia de ventas B2B para LATAM. Detectá oportunidades antes que tu competencia." />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.6s ease-out forwards',
+            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0', transform: 'translateY(16px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            },
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    /* Gradient radial glow behind hero */
+    .hero-glow {
+      background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(59,130,246,0.18) 0%, transparent 70%);
+    }
+    /* Subtle grid pattern overlay */
+    .grid-overlay {
+      background-image:
+        linear-gradient(rgba(148,163,184,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(148,163,184,0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+    /* Card hover glow */
+    .card-hover {
+      transition: box-shadow 0.25s ease, transform 0.25s ease, border-color 0.25s ease;
+    }
+    .card-hover:hover {
+      box-shadow: 0 0 0 1px rgba(59,130,246,0.4), 0 8px 32px rgba(59,130,246,0.12);
+      transform: translateY(-2px);
+      border-color: rgba(59,130,246,0.5);
+    }
+    /* Highlight popular pricing card */
+    .card-popular {
+      box-shadow: 0 0 0 2px rgba(59,130,246,0.7), 0 12px 40px rgba(59,130,246,0.18);
+    }
+    /* Radar animation ring */
+    @keyframes radar-ring {
+      0%   { transform: scale(0.6); opacity: 0.9; }
+      100% { transform: scale(2.2); opacity: 0; }
+    }
+    .radar-ring {
+      animation: radar-ring 2.4s ease-out infinite;
+    }
+    .radar-ring-2 { animation-delay: 0.8s; }
+    .radar-ring-3 { animation-delay: 1.6s; }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans antialiased">
+
+  <!-- ======================================================
+       NAV
+  ====================================================== -->
+  <header class="fixed top-0 left-0 right-0 z-50 border-b border-slate-800/60 bg-slate-900/80 backdrop-blur-md">
+    <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+      <a href="#" class="flex items-center gap-2 text-lg font-bold tracking-tight text-white hover:text-blue-400 transition-colors">
+        <span class="text-2xl">📡</span>
+        <span>Opportunity Radar</span>
+      </a>
+      <nav class="hidden md:flex items-center gap-8 text-sm text-slate-400">
+        <a href="#como-funciona" class="hover:text-white transition-colors">Cómo funciona</a>
+        <a href="#precios" class="hover:text-white transition-colors">Precios</a>
+        <a href="https://app.marcoslozina.com" class="hover:text-white transition-colors">Iniciar sesión</a>
+      </nav>
+      <a href="https://app.marcoslozina.com/pricing"
+         class="hidden md:inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold transition-colors">
+        Probar gratis
+        <span class="text-xs opacity-80">→</span>
+      </a>
+      <!-- Mobile menu toggle (no JS — just shows links) -->
+      <details class="md:hidden group">
+        <summary class="list-none cursor-pointer p-2 rounded-md hover:bg-slate-800 transition-colors text-slate-400">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </summary>
+        <div class="absolute top-16 left-0 right-0 bg-slate-900 border-b border-slate-800 px-6 py-4 flex flex-col gap-4 text-sm">
+          <a href="#como-funciona" class="text-slate-300 hover:text-white">Cómo funciona</a>
+          <a href="#precios" class="text-slate-300 hover:text-white">Precios</a>
+          <a href="https://app.marcoslozina.com" class="text-slate-300 hover:text-white">Iniciar sesión</a>
+          <a href="https://app.marcoslozina.com/pricing" class="text-blue-400 font-semibold">Probar gratis →</a>
+        </div>
+      </details>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ======================================================
+         HERO
+    ====================================================== -->
+    <section class="relative min-h-screen flex items-center pt-16 overflow-hidden hero-glow grid-overlay">
+      <!-- Radar animation -->
+      <div class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/3 w-[600px] h-[600px] hidden lg:flex items-center justify-center pointer-events-none" aria-hidden="true">
+        <div class="relative w-40 h-40 flex items-center justify-center">
+          <div class="absolute w-full h-full rounded-full border border-blue-500/20 radar-ring"></div>
+          <div class="absolute w-full h-full rounded-full border border-blue-500/20 radar-ring radar-ring-2"></div>
+          <div class="absolute w-full h-full rounded-full border border-blue-500/20 radar-ring radar-ring-3"></div>
+          <div class="w-16 h-16 rounded-full bg-blue-600/20 border border-blue-500/40 flex items-center justify-center text-3xl">📡</div>
+        </div>
+      </div>
+
+      <div class="relative max-w-6xl mx-auto px-6 py-24 lg:py-32">
+        <!-- Badge -->
+        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-400 text-xs font-semibold tracking-wide uppercase mb-8">
+          <span>🎯</span>
+          <span>Inteligencia de ventas B2B para LATAM</span>
+        </div>
+
+        <!-- Headline -->
+        <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight text-white leading-[1.05] mb-6 max-w-2xl">
+          Llegá primero.<br/>
+          <span class="text-blue-500">Siempre.</span>
+        </h1>
+
+        <!-- Subheadline -->
+        <p class="text-lg md:text-xl text-slate-400 leading-relaxed max-w-xl mb-10">
+          Opportunity Radar monitorea señales de mercado en tiempo real y te avisa cuando una empresa está lista para contratar lo que vos ofrecés — antes que tu competencia lo sepa.
+        </p>
+
+        <!-- CTAs -->
+        <div class="flex flex-col sm:flex-row gap-4 mb-16">
+          <a href="https://app.marcoslozina.com/pricing"
+             class="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-base transition-all hover:shadow-lg hover:shadow-blue-600/30 hover:-translate-y-0.5">
+            Probarlo gratis 7 días
+            <span>→</span>
+          </a>
+          <a href="#como-funciona"
+             class="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl border border-slate-700 hover:border-slate-500 text-slate-300 hover:text-white font-semibold text-base transition-all hover:-translate-y-0.5">
+            Ver cómo funciona
+            <span>↓</span>
+          </a>
+        </div>
+
+        <!-- Stats row -->
+        <div class="flex flex-wrap gap-8 text-sm">
+          <div class="flex items-center gap-2.5">
+            <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse-slow"></div>
+            <span class="text-slate-300 font-medium">135+ empresas monitoreadas</span>
+          </div>
+          <div class="flex items-center gap-2.5">
+            <div class="w-2 h-2 rounded-full bg-blue-500 animate-pulse-slow"></div>
+            <span class="text-slate-300 font-medium">50ms de latencia en alertas</span>
+          </div>
+          <div class="flex items-center gap-2.5">
+            <div class="w-2 h-2 rounded-full bg-violet-500 animate-pulse-slow"></div>
+            <span class="text-slate-300 font-medium">LATAM-first</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================
+         EL PROBLEMA
+    ====================================================== -->
+    <section id="problema" class="py-24 border-t border-slate-800">
+      <div class="max-w-6xl mx-auto px-6">
+        <div class="max-w-2xl mb-16">
+          <p class="text-blue-500 text-sm font-semibold uppercase tracking-widest mb-4">El problema</p>
+          <h2 class="text-4xl md:text-5xl font-extrabold text-white leading-tight">
+            Tus clientes deciden comprar antes de que les presentes
+          </h2>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-6">
+          <!-- Pain 1 -->
+          <div class="p-6 rounded-2xl bg-slate-800/50 border border-slate-700/60 card-hover">
+            <div class="w-12 h-12 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-2xl mb-5">
+              🧠
+            </div>
+            <p class="text-slate-100 font-semibold text-lg leading-snug mb-2">
+              Las decisiones ya están tomadas
+            </p>
+            <p class="text-slate-400 text-sm leading-relaxed">
+              El 70% de las decisiones B2B ya están tomadas cuando el proveedor entra al proceso. Si no estás ahí desde el principio, llegás tarde al partido.
+            </p>
+          </div>
+
+          <!-- Pain 2 -->
+          <div class="p-6 rounded-2xl bg-slate-800/50 border border-slate-700/60 card-hover">
+            <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-2xl mb-5">
+              ⏳
+            </div>
+            <p class="text-slate-100 font-semibold text-lg leading-snug mb-2">
+              Prospección sin criterio
+            </p>
+            <p class="text-slate-400 text-sm leading-relaxed">
+              Tu equipo pierde tiempo prospectando empresas que no van a comprar. Sin señales de intención, es un juego de azar disfrazado de estrategia.
+            </p>
+          </div>
+
+          <!-- Pain 3 -->
+          <div class="p-6 rounded-2xl bg-slate-800/50 border border-slate-700/60 card-hover">
+            <div class="w-12 h-12 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center text-2xl mb-5">
+              🔍
+            </div>
+            <p class="text-slate-100 font-semibold text-lg leading-snug mb-2">
+              La competencia ve lo que vos no ves
+            </p>
+            <p class="text-slate-400 text-sm leading-relaxed">
+              La competencia llega primero porque monitorea señales que vos no ves. Publicaciones de empleo, noticias de expansión, cambios de liderazgo — todo habla.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================
+         COMO FUNCIONA
+    ====================================================== -->
+    <section id="como-funciona" class="py-24 border-t border-slate-800 bg-slate-800/20">
+      <div class="max-w-6xl mx-auto px-6">
+        <div class="text-center max-w-2xl mx-auto mb-16">
+          <p class="text-blue-500 text-sm font-semibold uppercase tracking-widest mb-4">Proceso</p>
+          <h2 class="text-4xl md:text-5xl font-extrabold text-white leading-tight">
+            De la señal al cliente en 3 pasos
+          </h2>
+          <p class="text-slate-400 mt-4 text-lg">
+            Sin setup complejo. Sin equipo técnico. Estás activo en minutos.
+          </p>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-8 relative">
+          <!-- Connector line (desktop) -->
+          <div class="hidden md:block absolute top-12 left-[calc(16.67%+2rem)] right-[calc(16.67%+2rem)] h-px bg-gradient-to-r from-transparent via-blue-500/40 to-transparent" aria-hidden="true"></div>
+
+          <!-- Step 1 -->
+          <div class="relative flex flex-col items-center text-center">
+            <div class="w-24 h-24 rounded-2xl bg-blue-600/10 border border-blue-500/30 flex items-center justify-center mb-6 relative z-10">
+              <span class="text-4xl">🎯</span>
+              <span class="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center">1</span>
+            </div>
+            <h3 class="text-white font-bold text-xl mb-3">Configurás tu nicho</h3>
+            <p class="text-slate-400 text-sm leading-relaxed">
+              Definís tu segmento objetivo, las palabras clave que importan a tu negocio, y los tipos de señales que querés capturar. Lleva 5 minutos.
+            </p>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="relative flex flex-col items-center text-center">
+            <div class="w-24 h-24 rounded-2xl bg-blue-600/10 border border-blue-500/30 flex items-center justify-center mb-6 relative z-10">
+              <span class="text-4xl">📡</span>
+              <span class="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center">2</span>
+            </div>
+            <h3 class="text-white font-bold text-xl mb-3">Radar monitorea 24/7</h3>
+            <p class="text-slate-400 text-sm leading-relaxed">
+              Opportunity Radar rastrea fuentes en tiempo real — noticias, portales de empleo, redes profesionales, licitaciones — y cruza señales automáticamente.
+            </p>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="relative flex flex-col items-center text-center">
+            <div class="w-24 h-24 rounded-2xl bg-blue-600/10 border border-blue-500/30 flex items-center justify-center mb-6 relative z-10">
+              <span class="text-4xl">⚡</span>
+              <span class="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center">3</span>
+            </div>
+            <h3 class="text-white font-bold text-xl mb-3">Recibís alertas listas para actuar</h3>
+            <p class="text-slate-400 text-sm leading-relaxed">
+              Cada alerta incluye el contexto completo: quién es la empresa, qué señal detectamos, por qué es relevante para vos, y un borrador de acercamiento.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================
+         PARA QUIEN
+    ====================================================== -->
+    <section id="para-quien" class="py-24 border-t border-slate-800">
+      <div class="max-w-6xl mx-auto px-6">
+        <div class="text-center max-w-2xl mx-auto mb-16">
+          <p class="text-blue-500 text-sm font-semibold uppercase tracking-widest mb-4">Para quién</p>
+          <h2 class="text-4xl md:text-5xl font-extrabold text-white leading-tight">
+            Hecho para equipos B2B consultivos
+          </h2>
+          <p class="text-slate-400 mt-4 text-lg">
+            No es para todos. Es para los que venden con criterio y quieren llegar primero.
+          </p>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-6">
+          <!-- Card 1 -->
+          <div class="p-7 rounded-2xl bg-slate-800/50 border border-slate-700/60 card-hover">
+            <div class="text-3xl mb-5">📣</div>
+            <h3 class="text-white font-bold text-xl mb-3">Agencias de marketing y publicidad</h3>
+            <p class="text-slate-400 text-sm leading-relaxed mb-5">
+              Detectás cuando una empresa está lanzando un producto nuevo, abriendo mercados, o cambiando su agencia actual — y llegás antes que el pitch de tu competidor.
+            </p>
+            <ul class="space-y-2">
+              <li class="flex items-start gap-2 text-slate-300 text-sm">
+                <span class="text-emerald-500 mt-0.5">✓</span>
+                Señales de expansión de marca
+              </li>
+              <li class="flex items-start gap-2 text-slate-300 text-sm">
+                <span class="text-emerald-500 mt-0.5">✓</span>
+                Alertas de cambio de liderazgo
+              </li>
+              <li class="flex items-start gap-2 text-slate-300 text-sm">
+                <span class="text-emerald-500 mt-0.5">✓</span>
+                Detección de nuevas verticales
+              </li>
+            </ul>
+          </div>
+
+          <!-- Card 2 -->
+          <div class="p-7 rounded-2xl bg-slate-800/50 border border-slate-700/60 card-hover">
+            <div class="text-3xl mb-5">💻</div>
+            <h3 class="text-white font-bold text-xl mb-3">Consultoras de tecnología y transformación digital</h3>
+            <p class="text-slate-400 text-sm leading-relaxed mb-5">
+              Sabés cuándo una empresa está contratando perfiles tech o buscando proveedores cloud — antes de que publiquen una licitación formal o llamen a tres vendors.
+            </p>
+            <ul class="space-y-2">
+              <li class="flex items-start gap-2 text-slate-300 text-sm">
+                <span class="text-emerald-500 mt-0.5">✓</span>
+                Señales de modernización IT
+              </li>
+              <li class="flex items-start gap-2 text-slate-300 text-sm">
+                <span class="text-emerald-500 mt-0.5">✓</span>
+                Búsquedas de perfiles tech clave
+              </li>
+              <li class="flex items-start gap-2 text-slate-300 text-sm">
+                <span class="text-emerald-500 mt-0.5">✓</span>
+                Licitaciones tecnológicas públicas
+              </li>
+            </ul>
+          </div>
+
+          <!-- Card 3 -->
+          <div class="p-7 rounded-2xl bg-slate-800/50 border border-slate-700/60 card-hover">
+            <div class="text-3xl mb-5">🏢</div>
+            <h3 class="text-white font-bold text-xl mb-3">Proveedores de servicios B2B</h3>
+            <p class="text-slate-400 text-sm leading-relaxed mb-5">
+              RR.HH., finanzas, legal — servicios que las empresas contratan cuando crecen, se reestructuran, o enfrentan cambios regulatorios. Estás ahí justo cuando lo necesitan.
+            </p>
+            <ul class="space-y-2">
+              <li class="flex items-start gap-2 text-slate-300 text-sm">
+                <span class="text-emerald-500 mt-0.5">✓</span>
+                Señales de crecimiento de headcount
+              </li>
+              <li class="flex items-start gap-2 text-slate-300 text-sm">
+                <span class="text-emerald-500 mt-0.5">✓</span>
+                Alertas de cambios regulatorios
+              </li>
+              <li class="flex items-start gap-2 text-slate-300 text-sm">
+                <span class="text-emerald-500 mt-0.5">✓</span>
+                Eventos de M&amp;A y reestructuración
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================
+         PRICING
+    ====================================================== -->
+    <section id="precios" class="py-24 border-t border-slate-800 bg-slate-800/20">
+      <div class="max-w-6xl mx-auto px-6">
+        <div class="text-center max-w-2xl mx-auto mb-16">
+          <p class="text-blue-500 text-sm font-semibold uppercase tracking-widest mb-4">Precios</p>
+          <h2 class="text-4xl md:text-5xl font-extrabold text-white leading-tight">
+            Simple, transparente, sin sorpresas
+          </h2>
+          <p class="text-slate-400 mt-4 text-lg">
+            7 días gratis en cualquier plan. Cancelás cuando quieras.
+          </p>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-6 items-start">
+
+          <!-- Starter -->
+          <div class="p-7 rounded-2xl bg-slate-900 border border-slate-700/60 card-hover flex flex-col">
+            <div class="mb-6">
+              <p class="text-slate-400 text-sm font-semibold uppercase tracking-widest mb-1">Starter</p>
+              <div class="flex items-end gap-1.5 mb-2">
+                <span class="text-white text-4xl font-extrabold">$49</span>
+                <span class="text-slate-400 text-sm mb-1.5">/mes</span>
+              </div>
+              <p class="text-slate-500 text-sm">Para equipos que están empezando a escalar.</p>
+            </div>
+
+            <ul class="space-y-3 mb-8 flex-1">
+              <li class="flex items-start gap-2.5 text-sm text-slate-300">
+                <span class="text-emerald-500 mt-0.5 shrink-0">✓</span>
+                50 alertas por mes
+              </li>
+              <li class="flex items-start gap-2.5 text-sm text-slate-300">
+                <span class="text-emerald-500 mt-0.5 shrink-0">✓</span>
+                3 nichos monitoreados
+              </li>
+              <li class="flex items-start gap-2.5 text-sm text-slate-300">
+                <span class="text-emerald-500 mt-0.5 shrink-0">✓</span>
+                Alertas por email y dashboard
+              </li>
+              <li class="flex items-start gap-2.5 text-sm text-slate-300">
+                <span class="text-emerald-500 mt-0.5 shrink-0">✓</span>
+                Acceso a señales estándar
+              </li>
+              <li class="flex items-start gap-2.5 text-sm text-slate-400">
+                <span class="text-slate-600 mt-0.5 shrink-0">—</span>
+                Briefings semanales
+              </li>
+              <li class="flex items-start gap-2.5 text-sm text-slate-400">
+                <span class="text-slate-600 mt-0.5 shrink-0">—</span>
+                Integraciones (Slack, Webhooks)
+              </li>
+            </ul>
+
+            <a href="https://app.marcoslozina.com/pricing"
+               class="w-full py-3 px-4 rounded-xl border border-slate-600 hover:border-blue-500 hover:bg-blue-600/10 text-slate-300 hover:text-white font-semibold text-sm text-center transition-all">
+              Empezar gratis 7 días
+            </a>
+          </div>
+
+          <!-- Professional — POPULAR -->
+          <div class="p-7 rounded-2xl bg-slate-900 border border-blue-500/60 card-popular flex flex-col relative">
+            <div class="absolute -top-3.5 left-1/2 -translate-x-1/2">
+              <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-blue-600 text-white text-xs font-bold uppercase tracking-wide">
+                ⭐ Más popular
+              </span>
+            </div>
+            <div class="mb-6 pt-2">
+              <p class="text-blue-400 text-sm font-semibold uppercase tracking-widest mb-1">Professional</p>
+              <div class="flex items-end gap-1.5 mb-2">
+                <span class="text-white text-4xl font-extrabold">$149</span>
+                <span class="text-slate-400 text-sm mb-1.5">/mes</span>
+              </div>
+              <p class="text-slate-500 text-sm">Para equipos activos que no pueden darse el lujo de llegar tarde.</p>
+            </div>
+
+            <ul class="space-y-3 mb-8 flex-1">
+              <li class="flex items-start gap-2.5 text-sm text-slate-300">
+                <span class="text-emerald-500 mt-0.5 shrink-0">✓</span>
+                500 alertas por mes
+              </li>
+              <li class="flex items-start gap-2.5 text-sm text-slate-300">
+                <span class="text-emerald-500 mt-0.5 shrink-0">✓</span>
+                Nichos ilimitados
+              </li>
+              <li class="flex items-start gap-2.5 text-sm text-slate-300">
+                <span class="text-emerald-500 mt-0.5 shrink-0">✓</span>
+                Alertas por email, dashboard y Slack
+              </li>
+              <li class="flex items-start gap-2.5 text-sm text-slate-300">
+                <span class="text-emerald-500 mt-0.5 shrink-0">✓</span>
+                Señales avanzadas (empleo, M&amp;A, regulatory)
+              </li>
+              <li class="flex items-start gap-2.5 text-sm text-slate-300">
+                <span class="text-emerald-500 mt-0.5 shrink-0">✓</span>
+                Briefings semanales con resumen ejecutivo
+              </li>
+              <li class="flex items-start gap-2.5 text-sm text-slate-300">
+                <span class="text-emerald-500 mt-0.5 shrink-0">✓</span>
+                Webhooks e integraciones
+              </li>
+            </ul>
+
+            <a href="https://app.marcoslozina.com/pricing"
+               class="w-full py-3 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm text-center transition-all hover:shadow-lg hover:shadow-blue-600/30">
+              Empezar gratis 7 días
+            </a>
+          </div>
+
+          <!-- Enterprise -->
+          <div class="p-7 rounded-2xl bg-slate-900 border border-slate-700/60 card-hover flex flex-col">
+            <div class="mb-6">
+              <p class="text-slate-400 text-sm font-semibold uppercase tracking-widest mb-1">Enterprise</p>
+              <div class="flex items-end gap-1.5 mb-2">
+                <span class="text-white text-4xl font-extrabold">$399</span>
+                <span class="text-slate-400 text-sm mb-1.5">/mes</span>
+              </div>
+              <p class="text-slate-500 text-sm">Para organizaciones con equipos comerciales grandes y necesidades específicas.</p>
+            </div>
+
+            <ul class="space-y-3 mb-8 flex-1">
+              <li class="flex items-start gap-2.5 text-sm text-slate-300">
+                <span class="text-emerald-500 mt-0.5 shrink-0">✓</span>
+                Alertas ilimitadas
+              </li>
+              <li class="flex items-start gap-2.5 text-sm text-slate-300">
+                <span class="text-emerald-500 mt-0.5 shrink-0">✓</span>
+                Nichos y fuentes personalizadas
+              </li>
+              <li class="flex items-start gap-2.5 text-sm text-slate-300">
+                <span class="text-emerald-500 mt-0.5 shrink-0">✓</span>
+                Onboarding dedicado
+              </li>
+              <li class="flex items-start gap-2.5 text-sm text-slate-300">
+                <span class="text-emerald-500 mt-0.5 shrink-0">✓</span>
+                SLA garantizado y soporte prioritario
+              </li>
+              <li class="flex items-start gap-2.5 text-sm text-slate-300">
+                <span class="text-emerald-500 mt-0.5 shrink-0">✓</span>
+                Reportes ejecutivos a medida
+              </li>
+              <li class="flex items-start gap-2.5 text-sm text-slate-300">
+                <span class="text-emerald-500 mt-0.5 shrink-0">✓</span>
+                Integración con CRM existente
+              </li>
+            </ul>
+
+            <a href="mailto:hola@marcoslozina.com?subject=Opportunity%20Radar%20Enterprise%20%E2%80%94%20Demo"
+               class="w-full py-3 px-4 rounded-xl border border-violet-500/50 hover:bg-violet-600/10 hover:border-violet-400 text-violet-400 hover:text-violet-300 font-semibold text-sm text-center transition-all">
+              Agendar demo
+            </a>
+            <p class="text-slate-600 text-xs text-center mt-3">Respuesta en menos de 24 hs hábiles</p>
+          </div>
+        </div>
+
+        <!-- FAQ micro -->
+        <div class="mt-12 flex flex-wrap justify-center gap-8 text-sm text-slate-500">
+          <span class="flex items-center gap-2"><span class="text-emerald-500">✓</span> Sin tarjeta para la prueba</span>
+          <span class="flex items-center gap-2"><span class="text-emerald-500">✓</span> Cancelás en cualquier momento</span>
+          <span class="flex items-center gap-2"><span class="text-emerald-500">✓</span> Factura en USD o pesos</span>
+          <span class="flex items-center gap-2"><span class="text-emerald-500">✓</span> Soporte en español</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================
+         CTA FINAL
+    ====================================================== -->
+    <section class="py-24 border-t border-slate-800">
+      <div class="max-w-3xl mx-auto px-6 text-center">
+        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-400 text-xs font-semibold tracking-wide uppercase mb-8">
+          <span>📡</span>
+          <span>Empezá a monitorear hoy</span>
+        </div>
+        <h2 class="text-4xl md:text-5xl font-extrabold text-white leading-tight mb-6">
+          El mercado no espera.<br/>
+          <span class="text-blue-500">Vos tampoco deberías.</span>
+        </h2>
+        <p class="text-slate-400 text-lg mb-10">
+          7 días gratis. Setup en 5 minutos. Tu próximo cliente ya está dando señales — solo hay que escucharlas.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          <a href="https://app.marcoslozina.com/pricing"
+             class="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-base transition-all hover:shadow-lg hover:shadow-blue-600/30 hover:-translate-y-0.5">
+            Probarlo gratis 7 días →
+          </a>
+          <a href="mailto:hola@marcoslozina.com?subject=Opportunity%20Radar%20Enterprise%20%E2%80%94%20Demo"
+             class="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl border border-slate-700 hover:border-slate-500 text-slate-300 hover:text-white font-semibold text-base transition-all hover:-translate-y-0.5">
+            Hablar con ventas
+          </a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ======================================================
+       FOOTER
+  ====================================================== -->
+  <footer class="border-t border-slate-800 bg-slate-900/60">
+    <div class="max-w-6xl mx-auto px-6 py-12">
+      <div class="grid md:grid-cols-3 gap-8 mb-10">
+        <!-- Brand -->
+        <div>
+          <a href="#" class="flex items-center gap-2 text-white font-bold text-lg mb-3">
+            <span class="text-xl">📡</span>
+            Opportunity Radar
+          </a>
+          <p class="text-slate-500 text-sm leading-relaxed max-w-xs">
+            Inteligencia de ventas B2B para equipos que quieren llegar primero. Hecho en LATAM, para LATAM.
+          </p>
+        </div>
+
+        <!-- Links producto -->
+        <div>
+          <p class="text-slate-300 font-semibold text-sm mb-4">Producto</p>
+          <ul class="space-y-2.5 text-slate-500 text-sm">
+            <li><a href="#como-funciona" class="hover:text-slate-300 transition-colors">Cómo funciona</a></li>
+            <li><a href="#precios" class="hover:text-slate-300 transition-colors">Precios</a></li>
+            <li><a href="https://app.marcoslozina.com" class="hover:text-slate-300 transition-colors">Acceder a la app</a></li>
+            <li><a href="mailto:hola@marcoslozina.com?subject=Opportunity%20Radar%20Enterprise%20%E2%80%94%20Demo" class="hover:text-slate-300 transition-colors">Agendar demo Enterprise</a></li>
+          </ul>
+        </div>
+
+        <!-- Links legales -->
+        <div>
+          <p class="text-slate-300 font-semibold text-sm mb-4">Legal</p>
+          <ul class="space-y-2.5 text-slate-500 text-sm">
+            <li><a href="https://app.marcoslozina.com/terms" class="hover:text-slate-300 transition-colors">Términos de servicio</a></li>
+            <li><a href="https://app.marcoslozina.com/privacy" class="hover:text-slate-300 transition-colors">Política de privacidad</a></li>
+            <li><a href="mailto:hola@marcoslozina.com" class="hover:text-slate-300 transition-colors">Contacto</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="pt-8 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-600">
+        <p>&copy; 2026 Marcos Lozina. Todos los derechos reservados.</p>
+        <p>
+          <a href="https://app.marcoslozina.com" class="hover:text-slate-400 transition-colors">app.marcoslozina.com</a>
+        </p>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
