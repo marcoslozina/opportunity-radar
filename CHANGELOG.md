@@ -2,6 +2,23 @@
 
 ## [Unreleased] - 2026-05-06
 ### Added
+- Add marketing landing page for Opportunity Radar
+- Add CircuitBreaker for Redis — avoid timeout cascade
+- Add MONITORING.md — uptime, Sentry, billing alerts, log commands
+- Add IP-based brute force lockout for API key auth
+- Add X-Request-ID middleware
+- Block SQLite in production environment
+- Add Resend welcome email on subscription_created
+- Audit log billing events for subscription_created
+- Add TrustedHostMiddleware with TRUSTED_HOSTS config
+
+### Fixed
+- Read real client IP from CF-Connecting-IP for brute force lockout
+- Replace deprecated utcnow() with timezone-aware now(timezone.utc)
+- Replace utcnow() with timezone-aware datetime.now(timezone.utc)
+
+## [Unreleased] - 2026-05-06
+### Added
 - CircuitBreaker for Redis to avoid timeout cascade.
 - MONITORING.md for uptime, Sentry, billing alerts, and log commands.
 - IP-based brute force lockout for API key authentication.
