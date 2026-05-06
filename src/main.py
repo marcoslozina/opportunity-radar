@@ -48,6 +48,14 @@ if missing_recommended:
         f"[STARTUP] Optional vars not set (some features disabled): {', '.join(missing_recommended)}"
     )
 
+# Evitar SQLite en producción — no soporta concurrencia
+_db_url = os.getenv("DATABASE_URL", "")
+if os.getenv("ENVIRONMENT", "production") == "production" and "sqlite" in _db_url:
+    raise RuntimeError(
+        "DATABASE_URL uses SQLite in production environment. "
+        "Set DATABASE_URL to a PostgreSQL connection string."
+    )
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
