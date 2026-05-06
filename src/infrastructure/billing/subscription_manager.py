@@ -3,6 +3,7 @@ from __future__ import annotations
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from domain.entities.api_key import ApiKey
+from infrastructure.audit_log import log_billing_event
 from infrastructure.db.repositories import SqlApiKeyRepository
 from infrastructure.supabase_provisioning import provision_to_portal
 
@@ -33,6 +34,14 @@ async def create_subscription(
         email=email,
         raw_key=raw_key,
         tier=tier,
+    )
+
+    await log_billing_event(
+        "subscription_created",
+        order_id=order_id,
+        key_prefix=raw_key[:16],
+        tier=tier,
+        email=email,
     )
 
     return raw_key
