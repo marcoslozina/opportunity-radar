@@ -2,6 +2,27 @@
 
 ## [Unreleased] - 2026-05-06
 ### Added
+- Add Resend welcome email on subscription_created
+- Audit log billing events for subscription_created
+- Add TrustedHostMiddleware with TRUSTED_HOSTS config
+- Add CORS middleware — allow app.marcoslozina.com and radar.marcoslozina.com
+- Dual-write to shared Supabase portal on subscription create
+- Billing layer, tiers, quota, rate limits, domain rename
+- Add threshold-based alert system with webhook and email delivery
+- Add opportunity DNA archetype fingerprint
+
+### Fixed
+- Replace utcnow() with timezone-aware datetime.now(timezone.utc)
+- Update LS_SUCCESS_URL to portal central with product=opportunity-radar
+- Add src to pytest pythonpath
+
+### Changed
+- Make client injectable in provision_to_portal
+- Make _key_cache injectable via _make_get_api_key factory
+- Move niche keywords from Settings to niche_keywords.json
+
+## [Unreleased] - 2026-05-06
+### Added
 - Audit log for billing events on subscription creation.
 - TrustedHostMiddleware with TRUSTED_HOSTS configuration.
 - CORS middleware to allow specified domains.
