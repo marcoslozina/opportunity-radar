@@ -2,6 +2,21 @@
 
 ## [Unreleased] - 2026-05-06
 ### Added
+- CircuitBreaker for Redis to avoid timeout cascade.
+- MONITORING.md for uptime, Sentry, billing alerts, and log commands.
+- IP-based brute force lockout for API key authentication.
+- X-Request-ID middleware for observability.
+- Resend welcome email on subscription creation.
+- Audit log for billing events on subscription creation.
+- TrustedHostMiddleware with TRUSTED_HOSTS configuration.
+
+### Fixed
+- Read real client IP from CF-Connecting-IP for brute force lockout.
+- Replace deprecated utcnow() with timezone-aware now(timezone.utc).
+- Replace utcnow() with timezone-aware datetime.now(timezone.utc).
+
+## [Unreleased] - 2026-05-06
+### Added
 - IP-based brute force lockout for API key auth
 - X-Request-ID middleware
 - Block SQLite in production environment
