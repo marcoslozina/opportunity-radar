@@ -7,6 +7,7 @@ from contextlib import asynccontextmanager
 
 import sentry_sdk
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from sentry_sdk.integrations.fastapi import FastApiIntegration
 from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 from slowapi import _rate_limit_exceeded_handler
@@ -16,6 +17,7 @@ from api.middleware.limiter import limiter
 from api.middleware.logging import RequestLoggingMiddleware
 from api.routes import alert_rules, billing, briefing, health, keywords, niches, opportunities, pipeline, product_briefing
 from api.routes.keywords import niches_router as niches_suggest_router
+from config import settings
 from infrastructure.scheduler.pipeline_scheduler import schedule_all_niches, scheduler
 
 logging.basicConfig(level=logging.INFO)
@@ -61,6 +63,14 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+_cors_origins = [o.strip() for o in settings.cors_origins.split(",") if o.strip()]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=_cors_origins,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["*"],
+)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 app.add_middleware(RequestLoggingMiddleware)

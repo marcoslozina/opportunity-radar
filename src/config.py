@@ -10,6 +10,8 @@ class Settings(BaseSettings):
     anthropic_api_key: str = ""
     pipeline_schedule: str = "0 8 * * 1"  # lunes 08:00 UTC (cron)
 
+    cors_origins: str = "https://app.marcoslozina.com,https://radar.marcoslozina.com"
+
     reddit_client_id: str = ""
     reddit_client_secret: str = ""
     reddit_user_agent: str = "opportunity-radar/0.1"
