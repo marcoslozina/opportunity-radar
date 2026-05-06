@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from domain.entities.api_key import ApiKey
 from infrastructure.db.repositories import SqlApiKeyRepository
+from infrastructure.supabase_provisioning import provision_to_portal
 
 
 async def create_subscription(
@@ -15,6 +16,7 @@ async def create_subscription(
     """Generate an API key and persist it after successful payment.
 
     Returns the raw (unhashed) API key shown once to the customer.
+    Dual-writes to the shared Supabase portal (non-fatal if it fails).
     """
     api_key_entity, raw_key = ApiKey.generate(
         client_name=email,
@@ -25,5 +27,12 @@ async def create_subscription(
 
     repo = SqlApiKeyRepository(session)
     await repo.save(api_key_entity)
-    # repo.save already commits — no second commit needed
+
+    await provision_to_portal(
+        user_id=None,
+        email=email,
+        raw_key=raw_key,
+        tier=tier,
+    )
+
     return raw_key
