@@ -120,6 +120,26 @@ class ProductBriefingModel(Base):
     )
 
 
+class AlertRuleModel(Base):
+    __tablename__ = "alert_rules"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    niche_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("niches.id", ondelete="CASCADE"), nullable=False
+    )
+    threshold_score: Mapped[float] = mapped_column(Float, nullable=False)
+    delivery_channel: Mapped[str] = mapped_column(String(10), nullable=False)
+    webhook_url: Mapped[str | None] = mapped_column(String(2048), nullable=True)
+    email: Mapped[str | None] = mapped_column(String(320), nullable=True)
+    active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    last_notified_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+    __table_args__ = (
+        Index("ix_alert_rules_niche_id_active", "niche_id", "active"),
+    )
+
+
 class ApiKeyModel(Base):
     __tablename__ = "api_keys"
 

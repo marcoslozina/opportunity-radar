@@ -5,18 +5,19 @@ import json
 from datetime import datetime
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from domain.entities.alert_rule import AlertRule, AlertRuleId
 from domain.entities.api_key import ApiKey
 from domain.entities.briefing import Briefing, BriefingId
 from domain.entities.niche import Niche, NicheId
 from domain.entities.opportunity import Opportunity, OpportunityId
-from domain.ports.repository_ports import ApiKeyRepository, BriefingRepository, NicheRepository, OpportunityRepository
+from domain.ports.repository_ports import AlertRuleRepository, ApiKeyRepository, BriefingRepository, NicheRepository, OpportunityRepository
 from domain.value_objects.evidence_item import EvidenceItem
 from domain.value_objects.opportunity_score import OpportunityScore
-from infrastructure.db.models import ApiKeyModel, BriefingModel, NicheModel, OpportunityModel
+from infrastructure.db.models import AlertRuleModel, ApiKeyModel, BriefingModel, NicheModel, OpportunityModel
 
 
 class SQLNicheRepository(NicheRepository):
@@ -240,4 +241,70 @@ def _to_api_key(model: ApiKeyModel) -> ApiKey:
         active=model.active,
         created_at=model.created_at,
         expires_at=model.expires_at,
+    )
+
+
+class SqlAlertRuleRepository(AlertRuleRepository):
+    def __init__(self, session: AsyncSession) -> None:
+        self._session = session
+
+    async def save(self, rule: AlertRule) -> None:
+        model = _alert_rule_to_model(rule)
+        await self._session.merge(model)
+        await self._session.flush()
+
+    async def find_by_id(self, rule_id: AlertRuleId) -> AlertRule | None:
+        result = await self._session.get(AlertRuleModel, str(rule_id))
+        return _alert_rule_to_entity(result) if result else None
+
+    async def find_active_by_niche(self, niche_id: str) -> list[AlertRule]:
+        stmt = select(AlertRuleModel).where(
+            AlertRuleModel.niche_id == niche_id,
+            AlertRuleModel.active.is_(True),
+        )
+        result = await self._session.execute(stmt)
+        return [_alert_rule_to_entity(m) for m in result.scalars().all()]
+
+    async def deactivate(self, rule_id: AlertRuleId) -> None:
+        stmt = (
+            update(AlertRuleModel)
+            .where(AlertRuleModel.id == str(rule_id))
+            .values(active=False)
+        )
+        await self._session.execute(stmt)
+        await self._session.flush()
+
+    async def list_all(self, niche_id: str | None = None) -> list[AlertRule]:
+        stmt = select(AlertRuleModel)
+        if niche_id:
+            stmt = stmt.where(AlertRuleModel.niche_id == niche_id)
+        result = await self._session.execute(stmt)
+        return [_alert_rule_to_entity(m) for m in result.scalars().all()]
+
+
+def _alert_rule_to_model(rule: AlertRule) -> AlertRuleModel:
+    return AlertRuleModel(
+        id=str(rule.id),
+        niche_id=rule.niche_id,
+        threshold_score=rule.threshold_score,
+        delivery_channel=rule.delivery_channel,
+        webhook_url=rule.webhook_url,
+        email=rule.email,
+        active=rule.active,
+        last_notified_at=rule.last_notified_at,
+        created_at=rule.created_at,
+    )
+
+
+def _alert_rule_to_entity(model: AlertRuleModel) -> AlertRule:
+    return AlertRule(
+        id=AlertRuleId(UUID(model.id)),
+        niche_id=model.niche_id,
+        threshold_score=model.threshold_score,
+        delivery_channel=model.delivery_channel,
+        webhook_url=model.webhook_url,
+        email=model.email,
+        active=model.active,
+        last_notified_at=model.last_notified_at,
+        created_at=model.created_at,
     )

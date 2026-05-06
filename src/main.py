@@ -7,7 +7,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from api.middleware.logging import RequestLoggingMiddleware
-from api.routes import briefing, health, keywords, niches, opportunities, pipeline, product_briefing
+from api.routes import alert_rules, briefing, health, keywords, niches, opportunities, pipeline, product_briefing
 from api.routes.keywords import niches_router as niches_suggest_router
 from infrastructure.scheduler.pipeline_scheduler import schedule_all_niches, scheduler
 
@@ -39,3 +39,4 @@ app.include_router(product_briefing.router)
 app.include_router(keywords.router)
 app.include_router(niches_suggest_router)
 app.include_router(pipeline.router)
+app.include_router(alert_rules.router)

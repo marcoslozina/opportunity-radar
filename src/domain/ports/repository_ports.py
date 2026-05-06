@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from datetime import datetime
 from uuid import UUID
 
+from domain.entities.alert_rule import AlertRule, AlertRuleId
 from domain.entities.api_key import ApiKey
 from domain.entities.briefing import Briefing
 from domain.entities.niche import Niche, NicheId
@@ -58,3 +60,20 @@ class ApiKeyRepository(ABC):
 
     @abstractmethod
     async def list_all(self) -> list[ApiKey]: ...
+
+
+class AlertRuleRepository(ABC):
+    @abstractmethod
+    async def save(self, rule: AlertRule) -> None: ...
+
+    @abstractmethod
+    async def find_by_id(self, rule_id: AlertRuleId) -> AlertRule | None: ...
+
+    @abstractmethod
+    async def find_active_by_niche(self, niche_id: str) -> list[AlertRule]: ...
+
+    @abstractmethod
+    async def deactivate(self, rule_id: AlertRuleId) -> None: ...
+
+    @abstractmethod
+    async def list_all(self, niche_id: str | None = None) -> list[AlertRule]: ...

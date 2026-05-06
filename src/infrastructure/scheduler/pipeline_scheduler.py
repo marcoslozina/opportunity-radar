@@ -50,8 +50,32 @@ async def _run_pipeline_for_niche(niche_id_str: str) -> None:
                 insight_port=ClaudeInsightAdapter(),
                 scoring_engine=ScoringEngine(),
             )
-            await use_case.execute(NicheId(UUID(niche_id_str)))
+            briefing = await use_case.execute(NicheId(UUID(niche_id_str)))
             logger.info("Pipeline completed for niche_id=%s", niche_id_str)
+
+        # Post-pipeline: evaluate alert rules (best-effort — must not propagate exceptions)
+        try:
+            from infrastructure.db.session import AsyncSessionFactory as _Factory
+            from infrastructure.db.repositories import SQLNicheRepository as _NicheRepo, SQLBriefingRepository as _BriefingRepo, SqlAlertRuleRepository
+            from infrastructure.adapters.webhook_notification import WebhookNotificationAdapter
+            from infrastructure.adapters.resend_email import ResendEmailAdapter
+            from application.services.alert_evaluation_service import AlertEvaluationService
+            from domain.entities.niche import NicheId as _NicheId
+            from uuid import UUID as _UUID
+
+            async with _Factory() as alert_session:
+                niche_repo = _NicheRepo(alert_session)
+                niche = await niche_repo.find_by_id(_NicheId(_UUID(niche_id_str)))
+                if niche and briefing:
+                    alert_service = AlertEvaluationService(
+                        alert_rule_repo=SqlAlertRuleRepository(alert_session),
+                        briefing_repo=_BriefingRepo(alert_session),
+                        webhook_adapter=WebhookNotificationAdapter(),
+                        email_adapter=ResendEmailAdapter(settings.resend_api_key),
+                    )
+                    await alert_service.evaluate(briefing, niche)
+        except Exception as exc:
+            logger.error("Alert evaluation error (non-fatal): niche_id=%s error=%s", niche_id_str, exc)
     except Exception as exc:
         logger.error("Pipeline failed for niche_id=%s: %s", niche_id_str, exc)
     finally:
