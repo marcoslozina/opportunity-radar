@@ -14,10 +14,12 @@ VARIANT_IDS: dict[str, str] = {
 }
 
 LS_SUCCESS_URL = os.getenv(
-    "LS_SUCCESS_URL", "https://opportunity-radar.marcoslozina.com/success"
+    "LS_SUCCESS_URL",
+    "https://app.marcoslozina.com/success?order_id={order_id}&product=opportunity-radar",
 )
 LS_FAILURE_URL = os.getenv(
-    "LS_FAILURE_URL", "https://opportunity-radar.marcoslozina.com/cancel"
+    "LS_FAILURE_URL",
+    "https://app.marcoslozina.com/pricing?cancelled=true",
 )
 
 
