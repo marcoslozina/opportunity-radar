@@ -17,9 +17,13 @@ class Settings(BaseSettings):
     youtube_api_key: str = ""
     serp_api_key: str = ""
     product_hunt_token: str = ""
+    
+    # Resend Notifications
+    resend_api_key: str = ""
+    notification_email: str = "onboarding@resend.dev"  # Default test email for Resend
 
     # Niche Keywords
-    propflow_keywords_ar: list[str] = [
+    real_estate_keywords_ar: list[str] = [
         "crédito hipotecario Argentina",
         "invertir en propiedades Argentina",
         "comprar departamento Misiones",

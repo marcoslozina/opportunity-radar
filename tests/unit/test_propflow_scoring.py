@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from application.services.scoring_engine import PropFlowScoringEngine
+from application.services.scoring_engine import RealEstateScoringEngine
 from domain.value_objects.trend_signal import TrendSignal
 
 _NOW = datetime.now(tz=timezone.utc)
@@ -13,8 +13,8 @@ def _signal(stype: str, raw: float) -> TrendSignal:
     )
 
 
-def test_propflow_scoring_weights_correctly() -> None:
-    engine = PropFlowScoringEngine()
+def test_real_estate_scoring_weights_correctly() -> None:
+    engine = RealEstateScoringEngine()
     # social 0.15, trend 0.15, competition 0.20, monetization 0.30, frustration 0.20
     # total = (0.15*6 + 0.15*8 + 0.20*7 + 0.30*9 + 0.20*5) * 10
     # total = (0.9 + 1.2 + 1.4 + 2.7 + 1.0) * 10 = 7.2 * 10 = 72

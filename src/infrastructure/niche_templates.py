@@ -13,9 +13,9 @@ class NicheTemplate:
 
 
 TEMPLATES: dict[str, NicheTemplate] = {
-    "propflow": NicheTemplate(
-        name="PropFlow Argentina",
-        keywords=settings.propflow_keywords_ar,
+    "real_estate": NicheTemplate(
+        name="Real Estate LATAM",
+        keywords=settings.real_estate_keywords_ar,
         discovery_mode="real_estate",
         description="Oportunidades de contenido y producto en el mercado inmobiliario argentino con foco en créditos e inversión.",
     ),

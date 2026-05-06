@@ -59,7 +59,7 @@ CONFIDENCE_COLORS = {
 
 st.set_page_config(
     layout="wide",
-    page_title="PropFlow",
+    page_title="Real Estate",
     page_icon="🏠",
     initial_sidebar_state="expanded",
 )
@@ -607,7 +607,7 @@ def render_sidebar() -> tuple[str, int | None]:
     with st.sidebar:
         st.markdown(
             '<div style="font-size:2.2rem;text-align:center;padding:8px 0 4px">🏠</div>'
-            '<div style="font-size:1.1rem;font-weight:700;text-align:center;letter-spacing:0.04em;margin-bottom:4px">PropFlow</div>',
+            '<div style="font-size:1.1rem;font-weight:700;text-align:center;letter-spacing:0.04em;margin-bottom:4px">Real Estate</div>',
             unsafe_allow_html=True,
         )
 
@@ -883,6 +883,21 @@ def render_content_briefing(niche_id: int | None):
     st.markdown("---")
     st.subheader("Todas las oportunidades")
 
+    # Column headers
+    c_topic, c_score, c_conf, c_meta = st.columns([3, 2, 1.5, 3])
+    with c_topic: st.markdown("<small style='color:#64748B;font-weight:600'>Topic</small>", unsafe_allow_html=True)
+    with c_score: st.markdown("<small style='color:#64748B;font-weight:600'>Score</small>", unsafe_allow_html=True)
+    with c_conf: st.markdown("<small style='color:#64748B;font-weight:600'>Confianza</small>", unsafe_allow_html=True)
+    with c_meta: 
+        # Label dinámico según el modo
+        niches = fetch_niches()
+        niche = next((n for n in niches if n["id"] == niche_id), None)
+        mode = niche.get("discovery_mode", "content") if niche else "content"
+        label = "Implicación" if mode == "esg_intelligence" else "Aplicabilidad"
+        st.markdown(f"<small style='color:#64748B;font-weight:600'>{label}</small>", unsafe_allow_html=True)
+
+    st.markdown("<hr style='margin:4px 0 10px;border-color:#263348'>", unsafe_allow_html=True)
+
     rows = sorted(
         opportunities,
         key=lambda o: o["score"]["total"],
@@ -1103,6 +1118,13 @@ def render_raw_opportunities(niche_id: int | None):
         confidence = s.get("confidence", "medium")
         if conf_filter != "all" and confidence != conf_filter:
             continue
+        # Dynamic label for raw table
+        niches = fetch_niches()
+        n_id = opportunities[0].get("niche_id") if opportunities else niche_id
+        niche = next((n for n in niches if n["id"] == n_id), None)
+        mode = niche.get("discovery_mode", "content") if niche else "content"
+        label = "Implicación" if mode == "esg_intelligence" else "Applicability"
+
         rows.append(
             {
                 "Topic": opp["topic"],
@@ -1113,7 +1135,7 @@ def render_raw_opportunities(niche_id: int | None):
                 "Monetization Intent": round(s.get("monetization_intent", 0), 2),
                 "Total": round(s.get("total", 0), 2),
                 "Confidence": confidence,
-                "Applicability": opp.get("domain_applicability", ""),
+                label: opp.get("domain_applicability", ""),
             }
         )
 

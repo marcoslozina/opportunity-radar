@@ -5,15 +5,15 @@ from domain.entities.niche import Niche, NicheId
 from application.use_cases.run_pipeline import RunPipelineUseCase
 
 @pytest.mark.asyncio
-async def test_run_propflow_pipeline_integration():
+async def test_run_real_estate_pipeline_integration():
     # Setup
     niche_repo = MagicMock()
     briefing_repo = AsyncMock()
     collector = MagicMock()
     insight_port = AsyncMock()
-    
+
     niche = Niche.create(
-        name="PropFlow Test", 
+        name="Real Estate Test",
         keywords=["prop1"], 
         discovery_mode="real_estate"
     )

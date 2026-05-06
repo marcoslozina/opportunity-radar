@@ -22,7 +22,7 @@ class ClaudeInsightAdapter(InsightPort):
         system_prompt = _SYSTEM_PROMPT
         if discovery_mode == "real_estate":
             system_prompt += (
-                "\n\nMODO PROPFLOW: Para cada oportunidad, además de la acción, clasificá su aplicabilidad "
+                "\n\nMODO REAL ESTATE: Para cada oportunidad, además de la acción, clasificá su aplicabilidad "
                 "usando exactamente uno de estos valores: [calculadora, contenido, feature, irrelevante] "
                 "y dános un razonamiento breve. Respondé en formato CSV: Acción|Aplicabilidad|Razonamiento"
             )

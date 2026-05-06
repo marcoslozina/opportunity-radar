@@ -7,7 +7,7 @@
 
 ## Phase 2: Scoring Engine Generalization
 - [x] 2.1 Refactor `ScoringEngine` in `src/application/services/scoring_engine.py` to accept weights in constructor.
-- [x] 2.2 Implement `PropFlowScoringEngine` with weights: social 0.15, trend 0.15, competition 0.20, monetization 0.30, frustration 0.20.
+- [x] 2.2 Implement `RealEstateScoringEngine` with weights: social 0.15, trend 0.15, competition 0.20, monetization 0.30, frustration 0.20.
 - [x] 2.3 Implement `ScoringFactory` to return correct engine based on `discovery_mode`.
 
 ## Phase 3: Infrastructure & Templates
@@ -23,5 +23,5 @@
 - [x] 5.2 Update results table to show "Aplicabilidad" column for PropFlow.
 
 ## Phase 6: Tests
-- [x] 6.1 Unit tests for `PropFlowScoringEngine`.
-- [x] 6.2 Integration test for full PropFlow pipeline.
+- [x] 6.1 Unit tests for `RealEstateScoringEngine`.
+- [x] 6.2 Integration test for full real_estate pipeline.

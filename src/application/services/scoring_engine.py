@@ -67,7 +67,7 @@ class ScoringEngine:
         )
 
 
-class PropFlowScoringEngine(ScoringEngine):
+class RealEstateScoringEngine(ScoringEngine):
     def __init__(self) -> None:
         super().__init__(
             weights={
@@ -80,9 +80,24 @@ class PropFlowScoringEngine(ScoringEngine):
         )
 
 
+class ESGScoringEngine(ScoringEngine):
+    def __init__(self) -> None:
+        super().__init__(
+            weights={
+                "social_signal": 0.10,
+                "trend_velocity": 0.15,
+                "competition_gap": 0.30,
+                "monetization_intent": 0.20,
+                "frustration_level": 0.25,
+            }
+        )
+
+
 class ScoringFactory:
     @staticmethod
     def get_engine(discovery_mode: str) -> ScoringEngine:
         if discovery_mode == "real_estate":
-            return PropFlowScoringEngine()
+            return RealEstateScoringEngine()
+        if discovery_mode == "esg_intelligence":
+            return ESGScoringEngine()
         return ScoringEngine()
