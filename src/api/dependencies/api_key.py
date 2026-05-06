@@ -18,6 +18,7 @@ from domain.value_objects.tier import get_tier
 from infrastructure.db.repositories import SqlApiKeyRepository
 from infrastructure.db.session import get_session
 from infrastructure.quota import increment_query_counter
+from api.middleware.auth_guard import check_brute_force, reset_brute_force
 
 # Module-level TTL cache: maxsize=512, ttl=300s (5 minutes).
 # NOTE: TTLCache is NOT thread-safe. Safe under asyncio (single-threaded event loop).
@@ -101,11 +102,13 @@ def _make_get_api_key(cache: TTLCache | None = None):
         api_key = await repo.find_by_hash(key_hash)
 
         if api_key is None:
+            await check_brute_force(request)
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid API key",
             )
         if not api_key.active:
+            await check_brute_force(request)
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="API key has been revoked",
@@ -124,6 +127,7 @@ def _make_get_api_key(cache: TTLCache | None = None):
         )
         _cache[key_hash] = ctx
         request.state.api_key_ctx = ctx
+        await reset_brute_force(request)
 
         # Enforce monthly quota (Redis-backed, fails open if Redis is unavailable)
         tier = get_tier(api_key.tier)
