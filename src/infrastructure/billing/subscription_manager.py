@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from domain.entities.api_key import ApiKey
 from infrastructure.audit_log import log_billing_event
 from infrastructure.db.repositories import SqlApiKeyRepository
+from infrastructure.email_service import send_welcome_email
 from infrastructure.supabase_provisioning import provision_to_portal
 
 
@@ -43,5 +44,16 @@ async def create_subscription(
         tier=tier,
         email=email,
     )
+
+    try:
+        await send_welcome_email(email=email, tier=tier, api_key_raw=raw_key, order_id=order_id)
+    except Exception as exc:
+        import structlog as _structlog
+        _structlog.get_logger().warning(
+            "welcome_email_exception_nonfatal",
+            order_id=order_id,
+            email=email,
+            error=str(exc),
+        )
 
     return raw_key
