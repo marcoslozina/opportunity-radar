@@ -2,6 +2,24 @@
 
 ## [Unreleased] - 2026-05-06
 ### Added
+- Audit log for billing events on subscription creation.
+- TrustedHostMiddleware with TRUSTED_HOSTS configuration.
+- CORS middleware to allow specified domains.
+- Dual-write functionality to Supabase portal on subscription creation.
+- Billing layer enhancements including tiers, quota, rate limits, and domain rename.
+- Threshold-based alert system with webhook and email delivery.
+- Opportunity DNA archetype fingerprint.
+- Trend trajectory feature in opportunity briefings.
+- Evidence panel to show scoring justification per opportunity.
+- API keys authentication layer for external vertical consumers.
+
+### Fixed
+- Updated LS_SUCCESS_URL to portal central with product=opportunity-radar.
+- Replaced `utcnow()` with timezone-aware `datetime.now(timezone.utc)` for tests.
+- Added src to pytest pythonpath.
+
+## [Unreleased] - 2026-05-06
+### Added
 - add TrustedHostMiddleware with TRUSTED_HOSTS config
 - add CORS middleware — allow app.marcoslozina.com and radar.marcoslozina.com
 - dual-write to shared Supabase portal on subscription create
