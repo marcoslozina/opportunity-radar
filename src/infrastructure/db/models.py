@@ -4,7 +4,7 @@ import json
 from datetime import datetime
 from uuid import UUID
 
-from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Index, String, Text
+from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Index, Integer, String, Text
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
@@ -150,6 +150,9 @@ class ApiKeyModel(Base):
     active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     expires_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    tier: Mapped[str] = mapped_column(String(50), nullable=False, default="starter", server_default="starter")
+    monthly_quota_used: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default="0")
+    quota_reset_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
     __table_args__ = (
         Index("ix_api_keys_key_hash", "key_hash"),

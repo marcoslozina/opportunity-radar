@@ -1,9 +1,11 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.dependencies.api_key import get_api_key
+from api.middleware.limiter import limiter
+from api.middleware.rate_limits import get_rate_limit
 from api.schemas.product_opportunity import (
     ProductBriefingResponse,
     ProductOpportunityResponse,
@@ -21,7 +23,9 @@ router = APIRouter(prefix="/product-briefing", tags=["product-briefing"])
 
 
 @router.get("/{niche_id}", response_model=ProductBriefingResponse)
+@limiter.limit(get_rate_limit)
 async def get_product_briefing(
+    request: Request,
     niche_id: str,
     session: AsyncSession = Depends(get_session),
     api_key_ctx: ApiKeyContext = Depends(get_api_key),

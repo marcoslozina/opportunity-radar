@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     
     # Resend Notifications
     resend_api_key: str = ""
-    notification_email: str = "onboarding@resend.dev"  # Default test email for Resend
+    notification_email: str = ""
 
     # Niche Keywords
     real_estate_keywords_ar: list[str] = [

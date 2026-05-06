@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+import re
 from datetime import datetime
 
-from pydantic import BaseModel, field_validator, model_validator
+from pydantic import BaseModel, EmailStr, field_validator, model_validator
 from typing import Literal
 
 
@@ -11,7 +12,29 @@ class CreateAlertRuleRequest(BaseModel):
     threshold_score: float
     delivery_channel: Literal["webhook", "email", "both"]
     webhook_url: str | None = None
-    email: str | None = None
+    email: EmailStr | None = None
+
+    _BLOCKED_URL_PATTERNS = [
+        r'^https?://localhost',
+        r'^https?://127\.',
+        r'^https?://0\.',
+        r'^https?://10\.',
+        r'^https?://172\.(1[6-9]|2[0-9]|3[01])\.',
+        r'^https?://192\.168\.',
+        r'^https?://169\.254\.',  # AWS metadata
+    ]
+
+    @field_validator('webhook_url', mode='before')
+    @classmethod
+    def validate_webhook_url(cls, v: str | None) -> str | None:
+        if v is None:
+            return v
+        if not v.startswith('https://'):
+            raise ValueError('webhook_url must use HTTPS')
+        for pattern in cls._BLOCKED_URL_PATTERNS:
+            if re.match(pattern, v, re.IGNORECASE):
+                raise ValueError('webhook_url cannot point to private/internal addresses')
+        return v
 
     @field_validator("threshold_score")
     @classmethod

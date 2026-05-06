@@ -13,6 +13,7 @@ def _opportunity(topic: str, total: float) -> Opportunity:
         competition_gap=5.0,
         social_signal=5.0,
         monetization_intent=5.0,
+        frustration_level=5.0,
         total=total,
         confidence="medium",
     )

@@ -8,3 +8,4 @@ class ApiKeyContext:
     client_name: str
     scopes: tuple[str, ...]
     key_id: str  # UUID string — for logging / audit
+    tier: str = "starter"

@@ -3,7 +3,7 @@ from __future__ import annotations
 import hashlib
 import secrets
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import uuid4
 
 KEY_PREFIX = "or_live_"
@@ -18,6 +18,9 @@ class ApiKey:
     active: bool
     created_at: datetime
     expires_at: datetime | None
+    tier: str = "starter"
+    monthly_quota_used: int = 0
+    quota_reset_at: datetime | None = None
 
     @classmethod
     def generate(
@@ -35,7 +38,7 @@ class ApiKey:
             key_hash=key_hash,
             scopes=scopes,
             active=True,
-            created_at=datetime.utcnow(),
+            created_at=datetime.now(timezone.utc),
             expires_at=expires_at,
         )
         return entity, raw_key
@@ -48,7 +51,7 @@ class ApiKey:
     def is_valid(self) -> bool:
         if not self.active:
             return False
-        if self.expires_at is not None and self.expires_at < datetime.utcnow():
+        if self.expires_at is not None and self.expires_at < datetime.now(timezone.utc):
             return False
         return True
 

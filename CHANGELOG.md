@@ -1,17 +1,14 @@
 # Changelog
 
-## [Unreleased] - 2026-04-23
+## [Unreleased] - 2026-05-05
 ### Added
-- Streamlit dashboard with category-based niche discovery
-- Product discovery domain for monetization opportunities
-- Opportunity radar scoring engine
+- **PropFlow Expansion**: Rebranded to PropFlow and implemented specialized Real Estate niche for Argentina.
+- **Sustainability & ESG LATAM**: Implementation of a specialized scoring engine and insights for the ESG domain.
+- **Scoring Engine v2**: Generalization of weights and factory for domain-specific scoring (PropFlow vs ESG).
+- **Dashboard Awareness**: Dynamic labels (Aplicabilidad vs Implicación) and improved layout for niche-specific results.
+- **Technical Saneamiento**: Fixed technical debt in repositories and unit/integration tests after domain refactoring.
 
 ## [Unreleased] - 2026-04-22
-### Added
-- Add product discovery domain for monetization opportunities.
-- Implement opportunity radar scoring engine.
-### Changed
-- Bump actions/setup-go from 5 to 6.
 
 ## [Unreleased] - 2026-04-22
 ### Added

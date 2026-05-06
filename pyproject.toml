@@ -1,7 +1,7 @@
 [project]
-name = "propflow"
+name = "opportunity-radar"
 version = "0.1.0"
-description = "AI-powered real estate and generic opportunity radar"
+description = "AI-powered opportunity radar — content and product discovery briefings"
 requires-python = ">=3.12"
 dependencies = [
     "aiosqlite>=0.22.1",
@@ -10,6 +10,7 @@ dependencies = [
     "apscheduler>=3.10",
     "asyncpg>=0.31.0",
     "cachetools>=7.0.6",
+    "email-validator>=2.0",
     "fastapi>=0.136.0",
     "google-api-python-client>=2.194.0",
     "google-api-python-client-stubs>=1.35.0",
@@ -21,6 +22,9 @@ dependencies = [
     "serpapi>=1.0.2",
     "sqlalchemy[asyncio]>=2.0.49",
     "streamlit>=1.56.0",
+    "redis[asyncio]>=5.0.0",
+    "sentry-sdk[fastapi]>=1.40.0",
+    "slowapi>=0.1.9",
     "uvicorn>=0.45.0",
 ]
 

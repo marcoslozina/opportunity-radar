@@ -2,10 +2,12 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.dependencies.api_key import get_api_key
+from api.middleware.limiter import limiter
+from api.middleware.rate_limits import get_rate_limit
 from api.schemas.alert_rule import AlertRuleResponse, CreateAlertRuleRequest
 from domain.entities.alert_rule import AlertRule, AlertRuleId
 from domain.value_objects.api_key_context import ApiKeyContext
@@ -30,7 +32,9 @@ def _to_response(rule: AlertRule) -> AlertRuleResponse:
 
 
 @router.post("", response_model=AlertRuleResponse, status_code=201)
+@limiter.limit(get_rate_limit)
 async def create_alert_rule(
+    request: Request,
     body: CreateAlertRuleRequest,
     session: AsyncSession = Depends(get_session),
     _: ApiKeyContext = Depends(get_api_key),
@@ -57,14 +61,16 @@ async def create_alert_rule(
     )
 
     repo = SqlAlertRuleRepository(session)
-    await repo.save(rule)
-    await session.commit()
+    async with session.begin():
+        await repo.save(rule)
 
     return _to_response(rule)
 
 
 @router.get("", response_model=list[AlertRuleResponse])
+@limiter.limit(get_rate_limit)
 async def list_alert_rules(
+    request: Request,
     niche_id: str | None = None,
     session: AsyncSession = Depends(get_session),
     _: ApiKeyContext = Depends(get_api_key),
@@ -75,7 +81,9 @@ async def list_alert_rules(
 
 
 @router.delete("/{rule_id}", status_code=204)
+@limiter.limit(get_rate_limit)
 async def delete_alert_rule(
+    request: Request,
     rule_id: str,
     session: AsyncSession = Depends(get_session),
     _: ApiKeyContext = Depends(get_api_key),
@@ -90,6 +98,6 @@ async def delete_alert_rule(
     if rule is None:
         raise HTTPException(status_code=404, detail="Alert rule not found")
 
-    await repo.deactivate(AlertRuleId(rule_uuid))
-    await session.commit()
+    async with session.begin():
+        await repo.deactivate(AlertRuleId(rule_uuid))
     return Response(status_code=204)

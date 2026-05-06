@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import dataclasses
 import json
+import logging
 from datetime import datetime
 from uuid import UUID
 
-from sqlalchemy import select, update
+from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -39,16 +40,20 @@ class SQLNicheRepository(NicheRepository):
         result = await self._session.get(NicheModel, str(niche_id))
         return _to_niche(result) if result else None
 
-    async def find_all_active(self) -> list[Niche]:
-        stmt = select(NicheModel).where(NicheModel.active.is_(True))
+    async def find_all_active(self, limit: int = 50, offset: int = 0) -> list[Niche]:
+        stmt = (
+            select(NicheModel)
+            .where(NicheModel.active.is_(True))
+            .offset(offset)
+            .limit(limit)
+        )
         rows = await self._session.scalars(stmt)
         return [_to_niche(row) for row in rows]
 
     async def delete(self, niche_id: NicheId) -> None:
-        model = await self._session.get(NicheModel, str(niche_id))
-        if model:
-            await self._session.delete(model)
-            await self._session.commit()
+        stmt = delete(NicheModel).where(NicheModel.id == str(niche_id))
+        await self._session.execute(stmt)
+        await self._session.commit()
 
 
 class SQLOpportunityRepository(OpportunityRepository):
@@ -148,7 +153,10 @@ def _deserialize_evidence(raw: str) -> list[EvidenceItem]:
             )
             for item in items
         ]
-    except Exception:
+    except Exception as e:
+        logging.error(
+            f"[REPO] Failed to deserialize evidence: {e}. Raw value: {str(raw)[:200]}"
+        )
         return []
 
 
@@ -214,6 +222,9 @@ class SqlApiKeyRepository(ApiKeyRepository):
             active=api_key.active,
             created_at=api_key.created_at,
             expires_at=api_key.expires_at,
+            tier=api_key.tier,
+            monthly_quota_used=api_key.monthly_quota_used,
+            quota_reset_at=api_key.quota_reset_at,
         )
         self._session.add(model)
         await self._session.commit()
@@ -241,6 +252,9 @@ def _to_api_key(model: ApiKeyModel) -> ApiKey:
         active=model.active,
         created_at=model.created_at,
         expires_at=model.expires_at,
+        tier=model.tier,
+        monthly_quota_used=model.monthly_quota_used,
+        quota_reset_at=model.quota_reset_at,
     )
 
 

@@ -2,10 +2,12 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.dependencies.api_key import get_api_key
+from api.middleware.limiter import limiter
+from api.middleware.rate_limits import get_rate_limit
 from api.schemas.opportunity import (
     BriefingResponse,
     DimensionsResponse,
@@ -55,7 +57,9 @@ def _to_trajectory_response(
 
 
 @router.get("/{niche_id}", response_model=BriefingResponse)
+@limiter.limit(get_rate_limit)
 async def get_briefing(
+    request: Request,
     niche_id: str,
     session: AsyncSession = Depends(get_session),
     api_key_ctx: ApiKeyContext = Depends(get_api_key),

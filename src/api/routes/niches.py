@@ -1,11 +1,15 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from api.dependencies.api_key import get_api_key
+from api.middleware.limiter import limiter
+from api.middleware.rate_limits import get_rate_limit
 from api.schemas.niche import CreateNicheRequest, NicheResponse
 from application.use_cases.create_niche import CreateNicheUseCase, KeywordsRequiredError
 from domain.entities.niche import NicheId
+from domain.value_objects.api_key_context import ApiKeyContext
 from infrastructure.db.repositories import SQLNicheRepository
 from infrastructure.db.session import get_session
 from infrastructure.scheduler.pipeline_scheduler import add_niche_job, add_product_discovery_job, remove_niche_job
@@ -44,9 +48,16 @@ async def create_niche(
 
 
 @router.get("", response_model=list[NicheResponse])
-async def list_niches(session: AsyncSession = Depends(get_session)) -> list[NicheResponse]:
+@limiter.limit(get_rate_limit)
+async def list_niches(
+    request: Request,
+    limit: int = Query(default=50, ge=1, le=200),
+    offset: int = Query(default=0, ge=0),
+    ctx: ApiKeyContext = Depends(get_api_key),
+    session: AsyncSession = Depends(get_session),
+) -> list[NicheResponse]:
     repo = SQLNicheRepository(session)
-    niches = await repo.find_all_active()
+    niches = await repo.find_all_active(limit=limit, offset=offset)
     return [
         NicheResponse(id=str(n.id), name=n.name, keywords=n.keywords, active=n.active, discovery_mode=n.discovery_mode)
         for n in niches
