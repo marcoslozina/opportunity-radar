@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     pipeline_schedule: str = "0 8 * * 1"  # lunes 08:00 UTC (cron)
 
     cors_origins: str = "https://app.marcoslozina.com,https://radar.marcoslozina.com"
+    trusted_hosts: str = "api.radar.marcoslozina.com,radar.marcoslozina.com,localhost,127.0.0.1"
 
     reddit_client_id: str = ""
     reddit_client_secret: str = ""

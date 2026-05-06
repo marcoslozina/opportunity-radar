@@ -8,6 +8,7 @@ from contextlib import asynccontextmanager
 import sentry_sdk
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from sentry_sdk.integrations.fastapi import FastApiIntegration
 from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 from slowapi import _rate_limit_exceeded_handler
@@ -64,6 +65,9 @@ app = FastAPI(
 )
 
 _cors_origins = [o.strip() for o in settings.cors_origins.split(",") if o.strip()]
+_trusted_hosts = [h.strip() for h in settings.trusted_hosts.split(",") if h.strip()]
+
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=_trusted_hosts)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=_cors_origins,
