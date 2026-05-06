@@ -58,81 +58,89 @@ def _verify_supabase_jwt(token: str) -> dict | None:
         return None
 
 
-async def get_api_key(
-    request: Request,
-    x_api_key: str | None = Header(default=None, alias="X-API-Key"),
-    authorization: str | None = Header(default=None, alias="Authorization"),
-    session: AsyncSession = Depends(get_session),
-) -> ApiKeyContext:
-    # Intentar JWT de Supabase primero
-    if authorization and authorization.startswith("Bearer "):
-        token = authorization[7:]
-        payload = _verify_supabase_jwt(token)
-        if payload:
-            products = payload.get("user_metadata", {}).get("products", {})
-            if "opportunity-radar" in products:
-                tier = products["opportunity-radar"]
-                ctx = ApiKeyContext(
-                    client_name=payload.get("email", "supabase-user"),
-                    scopes=("read", "write"),
-                    key_id=payload.get("sub", ""),
-                    tier=tier,
-                )
-                request.state.api_key_ctx = ctx
-                return ctx
+def _make_get_api_key(cache: TTLCache | None = None):
+    _cache = cache if cache is not None else _key_cache
 
-    if x_api_key is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="X-API-Key header missing or invalid JWT",
-        )
+    async def get_api_key(
+        request: Request,
+        x_api_key: str | None = Header(default=None, alias="X-API-Key"),
+        authorization: str | None = Header(default=None, alias="Authorization"),
+        session: AsyncSession = Depends(get_session),
+    ) -> ApiKeyContext:
+        # Intentar JWT de Supabase primero
+        if authorization and authorization.startswith("Bearer "):
+            token = authorization[7:]
+            payload = _verify_supabase_jwt(token)
+            if payload:
+                products = payload.get("user_metadata", {}).get("products", {})
+                if "opportunity-radar" in products:
+                    tier = products["opportunity-radar"]
+                    ctx = ApiKeyContext(
+                        client_name=payload.get("email", "supabase-user"),
+                        scopes=("read", "write"),
+                        key_id=payload.get("sub", ""),
+                        tier=tier,
+                    )
+                    request.state.api_key_ctx = ctx
+                    return ctx
 
-    key_hash = ApiKey.hash_raw(x_api_key)
-
-    cached = _key_cache.get(key_hash)
-    if cached is not None:
-        request.state.api_key_ctx = cached
-        return cached
-
-    repo = SqlApiKeyRepository(session)
-    api_key = await repo.find_by_hash(key_hash)
-
-    if api_key is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid API key",
-        )
-    if not api_key.active:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="API key has been revoked",
-        )
-    if api_key.expires_at is not None and api_key.expires_at < datetime.now(timezone.utc):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="API key has expired",
-        )
-
-    ctx = ApiKeyContext(
-        client_name=api_key.client_name,
-        scopes=tuple(api_key.scopes),
-        key_id=api_key.id,
-        tier=api_key.tier,
-    )
-    _key_cache[key_hash] = ctx
-    request.state.api_key_ctx = ctx
-
-    # Enforce monthly quota (Redis-backed, fails open if Redis is unavailable)
-    tier = get_tier(api_key.tier)
-    if tier.max_opportunities_month != -1:
-        count = await increment_query_counter(api_key.id)
-        if count != -1 and count > tier.max_opportunities_month:
+        if x_api_key is None:
             raise HTTPException(
-                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-                detail=(
-                    f"Monthly quota exceeded ({tier.max_opportunities_month} requests). "
-                    "Upgrade your plan."
-                ),
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="X-API-Key header missing or invalid JWT",
             )
 
-    return ctx
+        key_hash = ApiKey.hash_raw(x_api_key)
+
+        cached = _cache.get(key_hash)
+        if cached is not None:
+            request.state.api_key_ctx = cached
+            return cached
+
+        repo = SqlApiKeyRepository(session)
+        api_key = await repo.find_by_hash(key_hash)
+
+        if api_key is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid API key",
+            )
+        if not api_key.active:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="API key has been revoked",
+            )
+        if api_key.expires_at is not None and api_key.expires_at < datetime.now(timezone.utc):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="API key has expired",
+            )
+
+        ctx = ApiKeyContext(
+            client_name=api_key.client_name,
+            scopes=tuple(api_key.scopes),
+            key_id=api_key.id,
+            tier=api_key.tier,
+        )
+        _cache[key_hash] = ctx
+        request.state.api_key_ctx = ctx
+
+        # Enforce monthly quota (Redis-backed, fails open if Redis is unavailable)
+        tier = get_tier(api_key.tier)
+        if tier.max_opportunities_month != -1:
+            count = await increment_query_counter(api_key.id)
+            if count != -1 and count > tier.max_opportunities_month:
+                raise HTTPException(
+                    status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                    detail=(
+                        f"Monthly quota exceeded ({tier.max_opportunities_month} requests). "
+                        "Upgrade your plan."
+                    ),
+                )
+
+        return ctx
+
+    return get_api_key
+
+
+get_api_key = _make_get_api_key()  # instancia de producción

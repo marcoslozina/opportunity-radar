@@ -3,11 +3,11 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 from unittest.mock import AsyncMock, MagicMock, patch
 
-import pytest
+from cachetools import TTLCache
 from fastapi import Depends, FastAPI
 from fastapi.testclient import TestClient
 
-from api.dependencies.api_key import _key_cache, get_api_key
+from api.dependencies.api_key import _make_get_api_key
 from domain.entities.api_key import ApiKey
 from domain.value_objects.api_key_context import ApiKeyContext
 from infrastructure.db.session import get_session
@@ -21,7 +21,14 @@ def _active_key(expires_at: datetime | None = None, active: bool = True) -> ApiK
 
 
 def _make_test_app(find_by_hash_return: ApiKey | None = None) -> tuple[FastAPI, AsyncMock]:
-    """Build a minimal FastAPI test app with the get_api_key dependency wired."""
+    """Build a minimal FastAPI test app with the get_api_key dependency wired.
+
+    Each call creates a fresh TTLCache so tests are fully isolated without
+    relying on _key_cache.clear() between runs.
+    """
+    fresh_cache: TTLCache = TTLCache(maxsize=512, ttl=300)
+    get_api_key = _make_get_api_key(cache=fresh_cache)
+
     test_app = FastAPI()
     mock_instance = AsyncMock()
     mock_instance.find_by_hash.return_value = find_by_hash_return
@@ -38,18 +45,12 @@ def _make_test_app(find_by_hash_return: ApiKey | None = None) -> tuple[FastAPI, 
     return test_app, mock_instance
 
 
-@pytest.fixture(autouse=True)
-def clear_cache() -> None:
-    """Clear TTL cache before each test to avoid cross-test pollution."""
-    _key_cache.clear()
-
-
 def test_get_api_key_when_header_missing_then_401() -> None:
     test_app, _ = _make_test_app()
     with TestClient(test_app, raise_server_exceptions=False) as c:
         resp = c.get("/protected")
     assert resp.status_code == 401
-    assert resp.json()["detail"] == "X-API-Key header missing"
+    assert resp.json()["detail"] == "X-API-Key header missing or invalid JWT"
 
 
 def test_get_api_key_when_key_not_found_then_401() -> None:
