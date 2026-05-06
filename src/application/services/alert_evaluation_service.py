@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from domain.entities.alert_rule import AlertRule
 from domain.entities.briefing import Briefing
@@ -60,7 +60,7 @@ class AlertEvaluationService:
             return
 
         if rule.last_notified_at is not None:
-            elapsed = datetime.utcnow() - rule.last_notified_at
+            elapsed = datetime.now(timezone.utc) - rule.last_notified_at
             if elapsed < timedelta(minutes=SUPPRESSION_WINDOW_MINUTES):
                 logger.info("Alert suppressed (cooldown): rule=%s", rule.id)
                 return
@@ -70,7 +70,7 @@ class AlertEvaluationService:
             alert_rule_id=str(rule.id),
             niche_id=str(niche.id),
             niche_name=niche.name,
-            triggered_at=datetime.utcnow(),
+            triggered_at=datetime.now(timezone.utc),
             threshold_score=rule.threshold_score,
             top_opportunity_topic=best.topic,
             top_opportunity_score=best.score.total,
@@ -81,7 +81,7 @@ class AlertEvaluationService:
 
         dispatched = await self._dispatch(rule, payload)
         if dispatched:
-            rule.last_notified_at = datetime.utcnow()
+            rule.last_notified_at = datetime.now(timezone.utc)
             await self._alert_rule_repo.save(rule)
 
     async def _dispatch(self, rule: AlertRule, payload: AlertPayload) -> bool:

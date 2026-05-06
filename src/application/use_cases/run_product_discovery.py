@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import uuid4
 
 from application.services.profitability_scoring_engine import ProfitabilityScoringEngine
@@ -48,7 +48,7 @@ class RunProductDiscoveryUseCase:
                 product_type=None,
                 product_reasoning="",
                 recommended_price_range="",
-                created_at=datetime.utcnow(),
+                created_at=datetime.now(timezone.utc),
             )
             for topic, score in scores
         ]
@@ -64,7 +64,7 @@ class RunProductDiscoveryUseCase:
             id=str(uuid4()),
             niche_id=str(niche_id),
             opportunities=opportunities,
-            generated_at=datetime.utcnow(),
+            generated_at=datetime.now(timezone.utc),
         )
         await self._product_briefing_repo.save(briefing)
 

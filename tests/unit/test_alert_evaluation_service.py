@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 
 import pytest
@@ -112,7 +112,7 @@ def make_briefing(niche_id: NicheId, opportunities: list[Opportunity]) -> Briefi
         id=BriefingId(uuid4()),
         niche_id=niche_id,
         opportunities=opportunities,
-        generated_at=datetime.utcnow(),
+        generated_at=datetime.now(timezone.utc),
     )
 
 
@@ -198,7 +198,7 @@ async def test_evaluate_does_not_fire_when_all_scores_below_threshold() -> None:
 
 async def test_evaluate_suppresses_when_last_notified_within_1h() -> None:
     niche = make_niche()
-    recent_time = datetime.utcnow() - timedelta(minutes=30)
+    recent_time = datetime.now(timezone.utc) - timedelta(minutes=30)
     rule = make_rule(niche_id=str(niche.id), threshold=70.0, last_notified_at=recent_time)
     briefing = make_briefing(niche.id, [make_opportunity("AI Tools", 88.0)])
 
@@ -211,7 +211,7 @@ async def test_evaluate_suppresses_when_last_notified_within_1h() -> None:
 
 async def test_evaluate_fires_when_suppression_window_expired() -> None:
     niche = make_niche()
-    old_time = datetime.utcnow() - timedelta(minutes=90)
+    old_time = datetime.now(timezone.utc) - timedelta(minutes=90)
     rule = make_rule(niche_id=str(niche.id), threshold=70.0, last_notified_at=old_time)
     briefing = make_briefing(niche.id, [make_opportunity("AI Tools", 88.0)])
 

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import UUID
 
 from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Index, Integer, String, Text
@@ -20,9 +20,9 @@ class NicheModel(Base):
     keywords_json: Mapped[str] = mapped_column(Text, nullable=False)
     active: Mapped[bool] = mapped_column(default=True)
     discovery_mode: Mapped[str] = mapped_column(String(10), nullable=False, default="content", server_default="content")
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
+        DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc)
     )
 
     briefings: Mapped[list[BriefingModel]] = relationship(
@@ -45,7 +45,7 @@ class BriefingModel(Base):
     niche_id: Mapped[str] = mapped_column(
         String(36), ForeignKey("niches.id", ondelete="CASCADE"), nullable=False
     )
-    generated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    generated_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     niche: Mapped[NicheModel] = relationship("NicheModel", back_populates="briefings")
     opportunities: Mapped[list[OpportunityModel]] = relationship(
@@ -72,7 +72,7 @@ class OpportunityModel(Base):
     domain_applicability: Mapped[str] = mapped_column(String(50), nullable=False, default="", server_default="")
     domain_reasoning: Mapped[str] = mapped_column(Text, nullable=False, default="", server_default="")
     evidence_json: Mapped[str] = mapped_column(Text, nullable=False, default="[]", server_default="[]")
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     briefing: Mapped[BriefingModel] = relationship(
         "BriefingModel", back_populates="opportunities"
@@ -99,7 +99,7 @@ class ProductOpportunityModel(Base):
     product_type: Mapped[str | None] = mapped_column(String(20), nullable=True)
     product_reasoning: Mapped[str | None] = mapped_column(Text, nullable=True)
     recommended_price_range: Mapped[str | None] = mapped_column(String(50), nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     briefing: Mapped[ProductBriefingModel | None] = relationship(
         "ProductBriefingModel", back_populates="opportunities"
@@ -113,7 +113,7 @@ class ProductBriefingModel(Base):
     niche_id: Mapped[str] = mapped_column(
         String(36), ForeignKey("niches.id", ondelete="CASCADE"), nullable=False
     )
-    generated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    generated_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     opportunities: Mapped[list[ProductOpportunityModel]] = relationship(
         "ProductOpportunityModel", back_populates="briefing", cascade="all, delete-orphan"
@@ -133,7 +133,7 @@ class AlertRuleModel(Base):
     email: Mapped[str | None] = mapped_column(String(320), nullable=True)
     active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     last_notified_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     __table_args__ = (
         Index("ix_alert_rules_niche_id_active", "niche_id", "active"),
@@ -148,7 +148,7 @@ class ApiKeyModel(Base):
     key_hash: Mapped[str] = mapped_column(String(64), nullable=False, unique=True)
     scopes_json: Mapped[str] = mapped_column(Text, nullable=False, default="[]")
     active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(timezone.utc))
     expires_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     tier: Mapped[str] = mapped_column(String(50), nullable=False, default="starter", server_default="starter")
     monthly_quota_used: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default="0")
