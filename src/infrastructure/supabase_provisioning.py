@@ -36,6 +36,7 @@ async def provision_to_portal(
     email: str,
     raw_key: str,
     tier: str,
+    _supabase_client=None,  # injectable para tests
 ) -> bool:
     """Write API key to the shared Supabase portal table.
 
@@ -45,7 +46,7 @@ async def provision_to_portal(
     import asyncio
 
     def _sync() -> bool:
-        supabase = _get_client()
+        supabase = _supabase_client or _get_client()
         if supabase is None:
             logger.warning("supabase_portal_not_configured — skipping dual-write")
             return False
