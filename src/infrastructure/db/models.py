@@ -4,7 +4,7 @@ import json
 from datetime import datetime
 from uuid import UUID
 
-from sqlalchemy import DateTime, Float, ForeignKey, String, Text
+from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Index, String, Text
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
@@ -71,6 +71,7 @@ class OpportunityModel(Base):
     recommended_action: Mapped[str] = mapped_column(Text, default="")
     domain_applicability: Mapped[str] = mapped_column(String(50), nullable=False, default="", server_default="")
     domain_reasoning: Mapped[str] = mapped_column(Text, nullable=False, default="", server_default="")
+    evidence_json: Mapped[str] = mapped_column(Text, nullable=False, default="[]", server_default="[]")
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
     briefing: Mapped[BriefingModel] = relationship(
@@ -117,3 +118,28 @@ class ProductBriefingModel(Base):
     opportunities: Mapped[list[ProductOpportunityModel]] = relationship(
         "ProductOpportunityModel", back_populates="briefing", cascade="all, delete-orphan"
     )
+
+
+class ApiKeyModel(Base):
+    __tablename__ = "api_keys"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    client_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    key_hash: Mapped[str] = mapped_column(String(64), nullable=False, unique=True)
+    scopes_json: Mapped[str] = mapped_column(Text, nullable=False, default="[]")
+    active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    expires_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+
+    __table_args__ = (
+        Index("ix_api_keys_key_hash", "key_hash"),
+        Index("ix_api_keys_client_name", "client_name"),
+    )
+
+    @property
+    def scopes(self) -> list[str]:
+        return json.loads(self.scopes_json)  # type: ignore[no-any-return]
+
+    @scopes.setter
+    def scopes(self, value: list[str]) -> None:
+        self.scopes_json = json.dumps(value)

@@ -7,9 +7,11 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
+from api.dependencies.api_key import get_api_key
 from domain.entities.niche import Niche
 from domain.entities.product_briefing import ProductBriefing
 from domain.entities.product_opportunity import ProductOpportunity
+from domain.value_objects.api_key_context import ApiKeyContext
 from domain.value_objects.profitability_score import ProfitabilityScore
 from infrastructure.db.models import Base
 from infrastructure.db.product_repositories import SQLProductBriefingRepository
@@ -20,6 +22,12 @@ from main import app
 TEST_DB_URL = "sqlite+aiosqlite:///:memory:"
 
 _NOW = datetime.now(tz=timezone.utc)
+
+_FAKE_API_KEY_CTX = ApiKeyContext(
+    client_name="test-client",
+    scopes=("read:opportunities",),
+    key_id="00000000-0000-0000-0000-000000000001",
+)
 
 
 @pytest.fixture
@@ -41,7 +49,11 @@ def client(session: AsyncSession, monkeypatch):
     monkeypatch.setattr("infrastructure.scheduler.pipeline_scheduler.add_niche_job", lambda *a: None)
     monkeypatch.setattr("infrastructure.scheduler.pipeline_scheduler.remove_niche_job", lambda *a: None)
 
+    async def override_api_key() -> ApiKeyContext:
+        return _FAKE_API_KEY_CTX
+
     app.dependency_overrides[get_session] = override_session
+    app.dependency_overrides[get_api_key] = override_api_key
     with TestClient(app, raise_server_exceptions=True) as c:
         yield c
     app.dependency_overrides.clear()

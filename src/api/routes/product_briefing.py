@@ -3,6 +3,7 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from api.dependencies.api_key import get_api_key
 from api.schemas.product_opportunity import (
     ProductBriefingResponse,
     ProductOpportunityResponse,
@@ -12,6 +13,7 @@ from application.use_cases.get_product_briefing import (
     GetProductBriefingUseCase,
     ProductBriefingNotFoundError,
 )
+from domain.value_objects.api_key_context import ApiKeyContext
 from infrastructure.db.product_repositories import SQLProductBriefingRepository
 from infrastructure.db.session import get_session
 
@@ -22,6 +24,7 @@ router = APIRouter(prefix="/product-briefing", tags=["product-briefing"])
 async def get_product_briefing(
     niche_id: str,
     session: AsyncSession = Depends(get_session),
+    api_key_ctx: ApiKeyContext = Depends(get_api_key),
 ) -> ProductBriefingResponse:
     repo = SQLProductBriefingRepository(session)
     use_case = GetProductBriefingUseCase(repo)

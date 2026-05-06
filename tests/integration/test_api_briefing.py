@@ -7,9 +7,11 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
+from api.dependencies.api_key import get_api_key
 from domain.entities.briefing import Briefing
 from domain.entities.niche import Niche, NicheId
 from domain.entities.opportunity import Opportunity
+from domain.value_objects.api_key_context import ApiKeyContext
 from domain.value_objects.opportunity_score import OpportunityScore
 from infrastructure.db.models import Base
 from infrastructure.db.repositories import SQLBriefingRepository, SQLNicheRepository
@@ -17,6 +19,12 @@ from infrastructure.db.session import get_session
 from main import app
 
 TEST_DB_URL = "sqlite+aiosqlite:///:memory:"
+
+_FAKE_API_KEY_CTX = ApiKeyContext(
+    client_name="test-client",
+    scopes=("read",),
+    key_id="00000000-0000-0000-0000-000000000001",
+)
 
 
 @pytest.fixture
@@ -35,7 +43,11 @@ def client(session: AsyncSession):
     async def override_session():
         yield session
 
+    async def override_api_key() -> ApiKeyContext:
+        return _FAKE_API_KEY_CTX
+
     app.dependency_overrides[get_session] = override_session
+    app.dependency_overrides[get_api_key] = override_api_key
     with TestClient(app, raise_server_exceptions=True) as c:
         yield c
     app.dependency_overrides.clear()
@@ -47,6 +59,7 @@ def _make_score(total: float = 75.0) -> OpportunityScore:
         competition_gap=7.0,
         social_signal=7.0,
         monetization_intent=8.0,
+        frustration_level=0.0,
         total=total,
         confidence="high",
     )

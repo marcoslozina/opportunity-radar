@@ -19,11 +19,14 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         response: Response = await call_next(request)  # type: ignore[operator]
 
         duration_ms = round((time.perf_counter() - start) * 1000, 2)
+        api_key_ctx = getattr(request.state, "api_key_ctx", None)
+        client_name = api_key_ctx.client_name if api_key_ctx is not None else "anonymous"
         logger.info(
-            "request_id=%s method=%s path=%s status=%s duration_ms=%s",
+            "request_id=%s method=%s path=%s client=%s status=%s duration_ms=%s",
             request_id,
             request.method,
             request.url.path,
+            client_name,
             response.status_code,
             duration_ms,
         )
