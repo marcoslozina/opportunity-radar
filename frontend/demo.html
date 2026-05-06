@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Demo — Opportunity Radar</title>
+  <meta name="description" content="Mirá en vivo cómo Opportunity Radar detecta señales de compra. Alertas de muestra de empresas buscando proveedores ahora mismo." />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://radar.marcoslozina.com/demo.html" />
+  <meta property="og:title" content="Demo — Opportunity Radar" />
+  <meta property="og:description" content="Mirá en vivo cómo Opportunity Radar detecta señales de compra. Alertas de muestra de empresas buscando proveedores ahora mismo." />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.4s ease-out forwards',
+            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0', transform: 'translateY(12px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            },
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    .card-hover {
+      transition: box-shadow 0.25s ease, transform 0.25s ease, border-color 0.25s ease;
+    }
+    .card-hover:hover {
+      box-shadow: 0 0 0 1px rgba(59,130,246,0.4), 0 8px 32px rgba(59,130,246,0.12);
+      transform: translateY(-2px);
+      border-color: rgba(59,130,246,0.5);
+    }
+    .tab-active {
+      background-color: rgb(37 99 235); /* blue-600 */
+      color: white;
+    }
+    .tab-inactive {
+      color: rgb(148 163 184); /* slate-400 */
+    }
+    .tab-inactive:hover {
+      color: white;
+      background-color: rgba(255,255,255,0.06);
+    }
+    .relevance-bar-green  { background: linear-gradient(90deg, #10b981, #34d399); }
+    .relevance-bar-yellow { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+    .relevance-bar-red    { background: linear-gradient(90deg, #ef4444, #f87171); }
+
+    /* Modal backdrop */
+    #modal-backdrop {
+      display: none;
+    }
+    #modal-backdrop.open {
+      display: flex;
+    }
+
+    /* Blurred / locked card */
+    .card-locked .card-content {
+      filter: blur(4px);
+      user-select: none;
+      pointer-events: none;
+    }
+    .card-locked {
+      position: relative;
+    }
+    .lock-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      border-radius: 1rem;
+      background: rgba(15,23,42,0.7);
+      backdrop-filter: blur(2px);
+    }
+
+    [data-industry] {
+      animation: fadeIn 0.3s ease-out;
+    }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans antialiased">
+
+  <!-- ======================================================
+       HEADER
+  ====================================================== -->
+  <header class="sticky top-0 z-40 border-b border-slate-800/60 bg-slate-900/90 backdrop-blur-md">
+    <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between gap-4">
+      <a href="index.html" class="flex items-center gap-2 text-lg font-bold tracking-tight text-white hover:text-blue-400 transition-colors shrink-0">
+        <span class="text-2xl">📡</span>
+        <span>Opportunity Radar</span>
+      </a>
+      <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-semibold tracking-wide uppercase">
+        Demo — datos de muestra
+      </span>
+      <a href="https://app.marcoslozina.com/register"
+         class="ml-auto shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold transition-colors">
+        Registrarme gratis <span aria-hidden="true">→</span>
+      </a>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-6 py-16">
+
+    <!-- ======================================================
+         HERO
+    ====================================================== -->
+    <div class="text-center mb-14 max-w-2xl mx-auto">
+      <h1 class="text-4xl md:text-5xl font-extrabold text-white leading-tight mb-4">
+        Esto es lo que Radar <span class="text-blue-500">detecta por vos</span>
+      </h1>
+      <p class="text-slate-400 text-lg leading-relaxed">
+        Alertas reales de empresas buscando activamente proveedores. Estos son datos de muestra — registrate para ver las alertas de tu industria en tiempo real.
+      </p>
+    </div>
+
+    <!-- ======================================================
+         FILTER TABS
+    ====================================================== -->
+    <div class="flex flex-wrap gap-2 mb-4">
+      <button data-tab="all"
+              class="tab-active px-4 py-2 rounded-lg text-sm font-semibold transition-all">
+        Todas
+      </button>
+      <button data-tab="marketing"
+              class="tab-inactive px-4 py-2 rounded-lg text-sm font-semibold transition-all">
+        Agencias &amp; Marketing
+      </button>
+      <button data-tab="tech"
+              class="tab-inactive px-4 py-2 rounded-lg text-sm font-semibold transition-all">
+        Tech &amp; Software
+      </button>
+      <button data-tab="b2b"
+              class="tab-inactive px-4 py-2 rounded-lg text-sm font-semibold transition-all">
+        B2B Services
+      </button>
+      <button data-tab="logistica"
+              class="tab-inactive px-4 py-2 rounded-lg text-sm font-semibold transition-all">
+        Logística
+      </button>
+    </div>
+
+    <!-- Count indicator -->
+    <p class="text-slate-500 text-sm mb-8">
+      <span id="alert-count">Mostrando 6 de 47 alertas</span>
+      <a href="https://app.marcoslozina.com/register" class="text-blue-400 hover:text-blue-300 ml-1 transition-colors">Registrate para ver todas →</a>
+    </p>
+
+    <!-- ======================================================
+         ALERT GRID
+    ====================================================== -->
+    <div class="grid md:grid-cols-2 gap-6" id="alert-grid">
+
+      <!-- ALERT 1 — B2B Services -->
+      <div data-industry="b2b" data-alert-id="1"
+           class="relative rounded-2xl bg-slate-800/60 border border-slate-700/60 p-6 card-hover cursor-pointer group">
+        <div class="flex items-start justify-between gap-3 mb-4">
+          <div class="flex flex-wrap gap-2">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">
+              B2B Services
+            </span>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-violet-500/15 text-violet-400 border border-violet-500/20">
+              Licitación abierta
+            </span>
+          </div>
+          <span class="text-slate-500 text-xs shrink-0 mt-0.5">hace 2 horas</span>
+        </div>
+
+        <h3 class="text-white font-bold text-lg mb-1">Constructora Andina S.A.</h3>
+        <p class="text-slate-400 text-sm leading-relaxed mb-5">
+          Buscando proveedor de servicios de consultoría digital para transformación ERP. Presupuesto estimado $80K-$120K USD.
+        </p>
+
+        <!-- Relevance bar -->
+        <div class="mb-5">
+          <div class="flex items-center justify-between text-xs mb-1.5">
+            <span class="text-slate-500 font-medium">Score de relevancia</span>
+            <span class="text-emerald-400 font-bold">94</span>
+          </div>
+          <div class="h-1.5 rounded-full bg-slate-700 overflow-hidden">
+            <div class="h-full rounded-full relevance-bar-green" style="width: 94%"></div>
+          </div>
+        </div>
+
+        <button onclick="openModal(1)"
+                class="inline-flex items-center gap-1.5 text-blue-400 hover:text-blue-300 text-sm font-semibold transition-colors group-hover:gap-2.5">
+          Ver oportunidad <span>→</span>
+        </button>
+      </div>
+
+      <!-- ALERT 2 — Agencias & Marketing -->
+      <div data-industry="marketing" data-alert-id="2"
+           class="relative rounded-2xl bg-slate-800/60 border border-slate-700/60 p-6 card-hover cursor-pointer group">
+        <div class="flex items-start justify-between gap-3 mb-4">
+          <div class="flex flex-wrap gap-2">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-500/15 text-purple-400 border border-purple-500/20">
+              Agencias &amp; Marketing
+            </span>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-400 border border-amber-500/20">
+              Job posting clave
+            </span>
+          </div>
+          <span class="text-slate-500 text-xs shrink-0 mt-0.5">hace 5 horas</span>
+        </div>
+
+        <h3 class="text-white font-bold text-lg mb-1">Agencia Bamba Creative</h3>
+        <p class="text-slate-400 text-sm leading-relaxed mb-5">
+          Publicó 3 posiciones de UX/UI y 1 de Strategy Director. Señal: están creciendo su equipo de producto.
+        </p>
+
+        <div class="mb-5">
+          <div class="flex items-center justify-between text-xs mb-1.5">
+            <span class="text-slate-500 font-medium">Score de relevancia</span>
+            <span class="text-amber-400 font-bold">87</span>
+          </div>
+          <div class="h-1.5 rounded-full bg-slate-700 overflow-hidden">
+            <div class="h-full rounded-full relevance-bar-yellow" style="width: 87%"></div>
+          </div>
+        </div>
+
+        <button onclick="openModal(2)"
+                class="inline-flex items-center gap-1.5 text-blue-400 hover:text-blue-300 text-sm font-semibold transition-colors group-hover:gap-2.5">
+          Ver oportunidad <span>→</span>
+        </button>
+      </div>
+
+      <!-- ALERT 3 — Tech & Software -->
+      <div data-industry="tech" data-alert-id="3"
+           class="relative rounded-2xl bg-slate-800/60 border border-slate-700/60 p-6 card-hover cursor-pointer group">
+        <div class="flex items-start justify-between gap-3 mb-4">
+          <div class="flex flex-wrap gap-2">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-500/15 text-blue-400 border border-blue-500/20">
+              Tech &amp; Software
+            </span>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-cyan-500/15 text-cyan-400 border border-cyan-500/20">
+              Evento de expansión
+            </span>
+          </div>
+          <span class="text-slate-500 text-xs shrink-0 mt-0.5">hace 8 horas</span>
+        </div>
+
+        <h3 class="text-white font-bold text-lg mb-1">FinTech Patagonia</h3>
+        <p class="text-slate-400 text-sm leading-relaxed mb-5">
+          Anunció expansión a Chile y Perú. Regularmente contrata proveedores locales para compliance y legal.
+        </p>
+
+        <div class="mb-5">
+          <div class="flex items-center justify-between text-xs mb-1.5">
+            <span class="text-slate-500 font-medium">Score de relevancia</span>
+            <span class="text-emerald-400 font-bold">91</span>
+          </div>
+          <div class="h-1.5 rounded-full bg-slate-700 overflow-hidden">
+            <div class="h-full rounded-full relevance-bar-green" style="width: 91%"></div>
+          </div>
+        </div>
+
+        <button onclick="openModal(3)"
+                class="inline-flex items-center gap-1.5 text-blue-400 hover:text-blue-300 text-sm font-semibold transition-colors group-hover:gap-2.5">
+          Ver oportunidad <span>→</span>
+        </button>
+      </div>
+
+      <!-- ALERT 4 — Logística -->
+      <div data-industry="logistica" data-alert-id="4"
+           class="relative rounded-2xl bg-slate-800/60 border border-slate-700/60 p-6 card-hover cursor-pointer group">
+        <div class="flex items-start justify-between gap-3 mb-4">
+          <div class="flex flex-wrap gap-2">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-orange-500/15 text-orange-400 border border-orange-500/20">
+              Logística
+            </span>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-500/15 text-red-400 border border-red-500/20">
+              Dolor público detectado
+            </span>
+          </div>
+          <span class="text-slate-500 text-xs shrink-0 mt-0.5">hace 1 día</span>
+        </div>
+
+        <h3 class="text-white font-bold text-lg mb-1">Distribuidora LogiMax</h3>
+        <p class="text-slate-400 text-sm leading-relaxed mb-5">
+          CEO publicó en LinkedIn: "necesitamos digitalizar nuestra operación, las planillas Excel ya no alcanzan".
+        </p>
+
+        <div class="mb-5">
+          <div class="flex items-center justify-between text-xs mb-1.5">
+            <span class="text-slate-500 font-medium">Score de relevancia</span>
+            <span class="text-emerald-400 font-bold">96</span>
+          </div>
+          <div class="h-1.5 rounded-full bg-slate-700 overflow-hidden">
+            <div class="h-full rounded-full relevance-bar-green" style="width: 96%"></div>
+          </div>
+        </div>
+
+        <button onclick="openModal(4)"
+                class="inline-flex items-center gap-1.5 text-blue-400 hover:text-blue-300 text-sm font-semibold transition-colors group-hover:gap-2.5">
+          Ver oportunidad <span>→</span>
+        </button>
+      </div>
+
+      <!-- ALERT 5 — B2B Services -->
+      <div data-industry="b2b" data-alert-id="5"
+           class="relative rounded-2xl bg-slate-800/60 border border-slate-700/60 p-6 card-hover cursor-pointer group">
+        <div class="flex items-start justify-between gap-3 mb-4">
+          <div class="flex flex-wrap gap-2">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">
+              B2B Services
+            </span>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-pink-500/15 text-pink-400 border border-pink-500/20">
+              Cambio de liderazgo
+            </span>
+          </div>
+          <span class="text-slate-500 text-xs shrink-0 mt-0.5">hace 1 día</span>
+        </div>
+
+        <h3 class="text-white font-bold text-lg mb-1">Grupo Editorial Sur</h3>
+        <p class="text-slate-400 text-sm leading-relaxed mb-5">
+          Nuevo CMO contratado con background digital. Históricamente el primer trimestre de un nuevo CMO es alto en contratación de agencias.
+        </p>
+
+        <div class="mb-5">
+          <div class="flex items-center justify-between text-xs mb-1.5">
+            <span class="text-slate-500 font-medium">Score de relevancia</span>
+            <span class="text-amber-400 font-bold">78</span>
+          </div>
+          <div class="h-1.5 rounded-full bg-slate-700 overflow-hidden">
+            <div class="h-full rounded-full relevance-bar-yellow" style="width: 78%"></div>
+          </div>
+        </div>
+
+        <button onclick="openModal(5)"
+                class="inline-flex items-center gap-1.5 text-blue-400 hover:text-blue-300 text-sm font-semibold transition-colors group-hover:gap-2.5">
+          Ver oportunidad <span>→</span>
+        </button>
+      </div>
+
+      <!-- ALERT 6 — LOCKED (Tech & Software) -->
+      <div data-industry="tech" data-alert-id="6"
+           class="relative rounded-2xl bg-slate-800/60 border border-slate-700/60 p-6 card-locked">
+
+        <!-- Lock overlay — on top of blurred content -->
+        <div class="lock-overlay rounded-2xl">
+          <div class="text-4xl mb-3">🔒</div>
+          <p class="text-white font-bold text-sm mb-1">Alerta bloqueada</p>
+          <p class="text-slate-400 text-xs text-center mb-4 max-w-[180px]">Registrate gratis para ver esta y 41 alertas más</p>
+          <a href="https://app.marcoslozina.com/register"
+             class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold transition-colors">
+            Registrarme gratis →
+          </a>
+        </div>
+
+        <!-- Blurred content underneath -->
+        <div class="card-content">
+          <div class="flex items-start justify-between gap-3 mb-4">
+            <div class="flex flex-wrap gap-2">
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-500/15 text-blue-400 border border-blue-500/20">
+                Tech &amp; Software
+              </span>
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-500/15 text-slate-400 border border-slate-500/20">
+                Señal detectada
+              </span>
+            </div>
+            <span class="text-slate-500 text-xs shrink-0 mt-0.5">hace 3 horas</span>
+          </div>
+
+          <h3 class="text-white font-bold text-lg mb-1">&#9733;&#9733;&#9733;&#9733;&#9733;&#9733;&#9733;</h3>
+          <p class="text-slate-400 text-sm leading-relaxed mb-5">
+            Esta alerta y 41 más están disponibles en tu plan. Registrate gratis para acceder.
+          </p>
+
+          <div class="mb-5">
+            <div class="flex items-center justify-between text-xs mb-1.5">
+              <span class="text-slate-500 font-medium">Score de relevancia</span>
+              <span class="text-emerald-400 font-bold">—</span>
+            </div>
+            <div class="h-1.5 rounded-full bg-slate-700 overflow-hidden">
+              <div class="h-full rounded-full bg-slate-600" style="width: 70%"></div>
+            </div>
+          </div>
+
+          <span class="inline-flex items-center gap-1.5 text-slate-500 text-sm font-semibold">
+            Ver oportunidad →
+          </span>
+        </div>
+      </div>
+
+    </div><!-- /alert-grid -->
+
+    <!-- ======================================================
+         PAYWALL BANNER
+    ====================================================== -->
+    <div class="mt-8 rounded-xl border border-blue-500/30 bg-blue-500/5 p-6 text-center">
+      <p class="text-lg font-bold text-white mb-1">Hay 41 alertas más esperándote</p>
+      <p class="text-slate-400 text-sm mb-5">Estas son de las últimas 24 horas. Registrate gratis y configurá tu nicho.</p>
+      <a href="https://app.marcoslozina.com/register"
+         class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm transition-all hover:shadow-lg hover:shadow-blue-600/30 hover:-translate-y-0.5">
+        Acceder a todas las alertas →
+      </a>
+    </div>
+
+  </main>
+
+  <!-- ======================================================
+       FOOTER
+  ====================================================== -->
+  <footer class="mt-16 border-t border-slate-800">
+    <div class="max-w-6xl mx-auto px-6 py-10 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-slate-600">
+      <a href="index.html" class="flex items-center gap-2 text-slate-500 hover:text-slate-300 transition-colors font-semibold">
+        <span>📡</span> Opportunity Radar
+      </a>
+      <div class="flex gap-6">
+        <a href="index.html#precios" class="hover:text-slate-400 transition-colors">Precios</a>
+        <a href="https://app.marcoslozina.com/terms" class="hover:text-slate-400 transition-colors">Términos</a>
+        <a href="https://app.marcoslozina.com/privacy" class="hover:text-slate-400 transition-colors">Privacidad</a>
+        <a href="mailto:hola@marcoslozina.com" class="hover:text-slate-400 transition-colors">Contacto</a>
+      </div>
+      <p>&copy; 2026 Marcos Lozina</p>
+    </div>
+  </footer>
+
+  <!-- ======================================================
+       MODAL
+  ====================================================== -->
+  <div id="modal-backdrop"
+       class="fixed inset-0 z-50 items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm"
+       role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="relative w-full max-w-lg bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl overflow-hidden">
+      <!-- Close button -->
+      <button onclick="closeModal()"
+              class="absolute top-4 right-4 text-slate-500 hover:text-white transition-colors p-1 rounded-lg hover:bg-slate-800"
+              aria-label="Cerrar">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+
+      <div class="p-8">
+        <!-- Header -->
+        <div class="flex flex-wrap gap-2 mb-5" id="modal-badges"></div>
+        <h2 id="modal-title" class="text-2xl font-extrabold text-white mb-1"></h2>
+        <p id="modal-signal" class="text-slate-400 text-sm mb-5"></p>
+
+        <!-- Description -->
+        <div class="bg-slate-800/60 rounded-xl p-4 mb-5">
+          <p class="text-slate-400 text-xs font-semibold uppercase tracking-widest mb-2">Señal detectada</p>
+          <p id="modal-description" class="text-slate-200 text-sm leading-relaxed"></p>
+        </div>
+
+        <!-- Acción recomendada -->
+        <div class="bg-blue-500/8 border border-blue-500/20 rounded-xl p-4 mb-6">
+          <p class="text-blue-400 text-xs font-semibold uppercase tracking-widest mb-2">¿Qué hacer?</p>
+          <p id="modal-action" class="text-slate-200 text-sm leading-relaxed"></p>
+        </div>
+
+        <!-- CTA -->
+        <a href="https://app.marcoslozina.com/register"
+           class="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm transition-all hover:shadow-lg hover:shadow-blue-600/30">
+          Para ver el contacto directo y más contexto, registrate →
+        </a>
+        <p class="text-slate-600 text-xs text-center mt-3">Gratis. Sin tarjeta de crédito.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================
+       JAVASCRIPT
+  ====================================================== -->
+  <script>
+    // ---- Alert data ----
+    const alerts = {
+      1: {
+        company: 'Constructora Andina S.A.',
+        industry: 'B2B Services',
+        industryColor: 'emerald',
+        signal: 'Licitación abierta',
+        signalColor: 'violet',
+        description: 'Buscando proveedor de servicios de consultoría digital para transformación ERP. Presupuesto estimado $80K-$120K USD.',
+        action: 'Contactar al CTO o al área de IT directamente. Presentarse mencionando experiencia en migraciones ERP similares. El timing es clave: están en fase de evaluación de vendors, el primer contacto marca la pauta.',
+      },
+      2: {
+        company: 'Agencia Bamba Creative',
+        industry: 'Agencias & Marketing',
+        industryColor: 'purple',
+        signal: 'Job posting clave',
+        signalColor: 'amber',
+        description: 'Publicó 3 posiciones de UX/UI y 1 de Strategy Director. Señal: están creciendo su equipo de producto.',
+        action: 'Llegar al CEO o COO de la agencia. Las agencias en expansión suelen necesitar partners de tecnología, producción y operaciones. Ofrecerte como partner estratégico (no como proveedor) abre más puertas.',
+      },
+      3: {
+        company: 'FinTech Patagonia',
+        industry: 'Tech & Software',
+        industryColor: 'blue',
+        signal: 'Evento de expansión',
+        signalColor: 'cyan',
+        description: 'Anunció expansión a Chile y Perú. Regularmente contrata proveedores locales para compliance y legal.',
+        action: 'Contactar al área de Legal y Compliance o al Country Manager designado para Chile/Perú. Las expansiones internacionales generan contratos rápidos con proveedores locales de confianza. Mencioná tu track record en el mercado destino.',
+      },
+      4: {
+        company: 'Distribuidora LogiMax',
+        industry: 'Logística',
+        industryColor: 'orange',
+        signal: 'Dolor público detectado',
+        signalColor: 'red',
+        description: 'CEO publicó en LinkedIn: "necesitamos digitalizar nuestra operación, las planillas Excel ya no alcanzan".',
+        action: 'Responder el post de LinkedIn del CEO con valor concreto (no spam). Luego enviar un mensaje directo con un caso de éxito relevante. Es el mejor momento: el CEO ya verbalizó el problema públicamente, lo que elimina la resistencia inicial al cambio.',
+      },
+      5: {
+        company: 'Grupo Editorial Sur',
+        industry: 'B2B Services',
+        industryColor: 'emerald',
+        signal: 'Cambio de liderazgo',
+        signalColor: 'pink',
+        description: 'Nuevo CMO contratado con background digital. Históricamente el primer trimestre de un nuevo CMO es alto en contratación de agencias.',
+        action: 'Conectar con el nuevo CMO en LinkedIn en los primeros 30 días de su cargo. Los nuevos ejecutivos quieren demostrar resultados rápidos y tienen presupuesto para hacerlo. Presentar un caso de éxito en los primeros 90 días de gestión.',
+      },
+    }
+
+    // ---- Badge color helpers ----
+    const colorMap = {
+      emerald: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/20',
+      purple:  'bg-purple-500/15 text-purple-400 border-purple-500/20',
+      blue:    'bg-blue-500/15 text-blue-400 border-blue-500/20',
+      orange:  'bg-orange-500/15 text-orange-400 border-orange-500/20',
+      violet:  'bg-violet-500/15 text-violet-400 border-violet-500/20',
+      amber:   'bg-amber-500/15 text-amber-400 border-amber-500/20',
+      cyan:    'bg-cyan-500/15 text-cyan-400 border-cyan-500/20',
+      red:     'bg-red-500/15 text-red-400 border-red-500/20',
+      pink:    'bg-pink-500/15 text-pink-400 border-pink-500/20',
+    }
+
+    function makeBadge(text, color) {
+      const cls = colorMap[color] || colorMap.blue
+      return `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${cls}">${text}</span>`
+    }
+
+    // ---- Modal ----
+    function openModal(id) {
+      const data = alerts[id]
+      if (!data) return
+
+      document.getElementById('modal-badges').innerHTML =
+        makeBadge(data.industry, data.industryColor) +
+        makeBadge(data.signal, data.signalColor)
+
+      document.getElementById('modal-title').textContent = data.company
+      document.getElementById('modal-signal').textContent = `Señal: ${data.signal}`
+      document.getElementById('modal-description').textContent = data.description
+      document.getElementById('modal-action').textContent = data.action
+
+      document.getElementById('modal-backdrop').classList.add('open')
+      document.body.style.overflow = 'hidden'
+    }
+
+    function closeModal() {
+      document.getElementById('modal-backdrop').classList.remove('open')
+      document.body.style.overflow = ''
+    }
+
+    // Close on backdrop click
+    document.getElementById('modal-backdrop').addEventListener('click', function(e) {
+      if (e.target === this) closeModal()
+    })
+
+    // Close on Escape
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeModal()
+    })
+
+    // ---- Tab filtering ----
+    const tabs = document.querySelectorAll('[data-tab]')
+    const cards = document.querySelectorAll('[data-industry]')
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const industry = tab.dataset.tab
+
+        // Filter cards
+        cards.forEach(card => {
+          if (industry === 'all' || card.dataset.industry === industry) {
+            card.style.display = 'block'
+          } else {
+            card.style.display = 'none'
+          }
+        })
+
+        // Update active tab styles
+        tabs.forEach(t => {
+          t.classList.remove('tab-active')
+          t.classList.add('tab-inactive')
+        })
+        tab.classList.remove('tab-inactive')
+        tab.classList.add('tab-active')
+
+        // Update count
+        const visible = document.querySelectorAll('[data-industry]').length -
+          document.querySelectorAll('[data-industry][style*="none"]').length
+        document.getElementById('alert-count').textContent =
+          `Mostrando ${visible} de 47 alertas`
+      })
+    })
+  </script>
+
+</body>
+</html>
