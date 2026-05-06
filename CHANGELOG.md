@@ -1,5 +1,29 @@
 # Changelog
 
+## [Unreleased] - 2026-05-06
+### Added
+- Add CORS middleware — allow app.marcoslozina.com and radar.marcoslozina.com
+- Dual-write to shared Supabase portal on subscription create
+- Billing layer, tiers, quota, rate limits, domain rename
+- Add threshold-based alert system with webhook and email delivery
+- Add opportunity DNA archetype fingerprint
+- Add trend trajectory to opportunity briefings
+- Add evidence panel to surface scoring justification per opportunity
+- Add API keys authentication layer for external vertical consumers
+- Rebrand to PropFlow and implement real estate niche expansion
+- Add Streamlit dashboard with category-based niche discovery
+
+### Changed
+- Make client injectable in provision_to_portal
+- Make _key_cache injectable via _make_get_api_key factory
+- Move niche keywords from Settings to niche_keywords.json
+- Rename propflow discovery_mode to real_estate
+
+### Fixed
+- Replace utcnow() with timezone-aware datetime.now(timezone.utc)
+- Update LS_SUCCESS_URL to portal central with product=opportunity-radar
+- Add src to pytest pythonpath
+
 ## [Unreleased] - 2026-05-05
 ### Added
 - **PropFlow Expansion**: Rebranded to PropFlow and implemented specialized Real Estate niche for Argentina.
