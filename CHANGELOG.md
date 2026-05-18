@@ -1,5 +1,23 @@
 # Changelog
 
+## [Unreleased] - 2026-05-18
+### Added
+- ContentForge API contract
+- Link to demo page from hero CTA
+- Interactive alert demo page for Opportunity Radar
+- Marketing landing page for Opportunity Radar
+- CircuitBreaker for Redis to avoid timeout cascade
+- MONITORING.md for uptime, Sentry, billing alerts, log commands
+- IP-based brute force lockout for API key auth
+- X-Request-ID middleware
+- Block SQLite in production environment
+- Resend welcome email on subscription created
+- Audit log for billing events on subscription created
+
+### Fixed
+- Read real client IP from CF-Connecting-IP for brute force lockout
+- Replace deprecated utcnow() with timezone-aware now(timezone.utc)
+
 ## [Unreleased] - 2026-05-06
 ### Added
 - Link to demo page from hero CTA on landing page.
