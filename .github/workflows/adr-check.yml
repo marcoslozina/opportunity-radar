@@ -82,7 +82,7 @@ jobs:
 
       - name: Warn if arch change without ADR
         if: steps.arch.outputs.needs_adr == 'true' && steps.adr.outputs.has_adr == 'false'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             await github.rest.issues.createComment({
@@ -101,7 +101,7 @@ jobs:
 
       - name: Confirm ADR present
         if: steps.adr.outputs.has_adr == 'true'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             await github.rest.issues.createComment({
