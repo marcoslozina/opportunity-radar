@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import praw
 import praw.exceptions
@@ -43,7 +43,7 @@ class RedditAdapter(TrendDataPort):
                     topic=keyword,
                     raw_value=raw_value,
                     signal_type="social_signal",
-                    collected_at=datetime.now(tz=timezone.utc),
+                    collected_at=datetime.now(tz=UTC),
                 )
             ]
             evidence = self._collect_evidence(keyword, results)
@@ -53,7 +53,7 @@ class RedditAdapter(TrendDataPort):
 
     def _collect_evidence(self, keyword: str, posts: list) -> list[EvidenceItem]:
         try:
-            now = datetime.now(tz=timezone.utc)
+            now = datetime.now(tz=UTC)
             items = [
                 EvidenceItem(
                     source="reddit",

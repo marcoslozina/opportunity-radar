@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from uuid import uuid4
+from datetime import UTC, datetime
 
 from application.services.profitability_scoring_engine import ProfitabilityScoringEngine
 from application.use_cases.run_product_discovery import RunProductDiscoveryUseCase
@@ -15,7 +14,7 @@ from domain.ports.trend_data_port import TrendDataPort
 from domain.value_objects.product_type import ProductType
 from domain.value_objects.trend_signal import TrendSignal
 
-_NOW = datetime.now(tz=timezone.utc)
+_NOW = datetime.now(tz=UTC)
 
 
 class FakeNicheRepository(NicheRepository):

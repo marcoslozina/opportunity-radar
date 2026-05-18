@@ -11,7 +11,6 @@ from domain.ports.repository_ports import BriefingRepository, NicheRepository
 from domain.ports.trend_data_port import TrendDataPort
 from domain.value_objects.evidence_item import EvidenceItem
 from domain.value_objects.trend_signal import TrendSignal
-from application.services.scoring_engine import ScoringEngine
 
 logger = logging.getLogger(__name__)
 
@@ -66,7 +65,7 @@ class RunPipelineUseCase:
 
         all_signals: list[TrendSignal] = []
         all_evidence: list[EvidenceItem] = []
-        for collector, batch in zip(self._collectors, results):
+        for collector, batch in zip(self._collectors, results, strict=False):
             all_signals.extend(batch)
             if hasattr(collector, "_last_evidence"):
                 all_evidence.extend(collector._last_evidence)

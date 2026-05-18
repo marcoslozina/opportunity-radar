@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.dependencies.api_key import get_api_key, ApiKeyContext
+from api.dependencies.api_key import ApiKeyContext, get_api_key
 from domain.value_objects.tier import get_tier
 from infrastructure.billing.checkout import create_checkout_session
 from infrastructure.billing.webhook_handler import handle_webhook
@@ -56,7 +56,7 @@ async def get_usage(ctx: ApiKeyContext = Depends(get_api_key)) -> dict:
     tier = get_tier(ctx.tier)
     queries_used = await get_query_count(ctx.key_id)
 
-    now = datetime.now()
+    now = datetime.now(UTC)
     if now.month == 12:
         reset = now.replace(day=1, month=1, year=now.year + 1, hour=0, minute=0, second=0, microsecond=0)
     else:

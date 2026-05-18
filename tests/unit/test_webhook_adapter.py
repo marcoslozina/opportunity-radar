@@ -4,7 +4,6 @@ from datetime import datetime
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import httpx
-import pytest
 
 from domain.value_objects.alert_payload import AlertPayload
 from infrastructure.adapters.webhook_notification import WebhookNotificationAdapter

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import UUID, uuid4
 
 from domain.entities.niche import NicheId
@@ -21,7 +21,7 @@ class Briefing:
     id: BriefingId
     niche_id: NicheId
     opportunities: list[Opportunity]
-    generated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    generated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     @classmethod
     def create(cls, niche_id: NicheId, opportunities: list[Opportunity]) -> Briefing:

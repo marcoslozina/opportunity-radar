@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
 from uuid import uuid4
 
 import pytest
@@ -9,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 
 from api.dependencies.api_key import get_api_key
 from domain.entities.briefing import Briefing
-from domain.entities.niche import Niche, NicheId
+from domain.entities.niche import Niche
 from domain.entities.opportunity import Opportunity
 from domain.value_objects.api_key_context import ApiKeyContext
 from domain.value_objects.opportunity_score import OpportunityScore

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import uuid4
 
 import pytest
@@ -21,7 +21,7 @@ from main import app
 
 TEST_DB_URL = "sqlite+aiosqlite:///:memory:"
 
-_NOW = datetime.now(tz=timezone.utc)
+_NOW = datetime.now(tz=UTC)
 
 _FAKE_API_KEY_CTX = ApiKeyContext(
     client_name="test-client",

@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
-from application.services.scoring_engine import ScoringEngine
 from application.use_cases.run_pipeline import RunPipelineUseCase
 from domain.entities.briefing import Briefing
 from domain.entities.niche import Niche, NicheId
@@ -12,9 +11,8 @@ from domain.ports.repository_ports import BriefingRepository, NicheRepository
 from domain.ports.trend_data_port import TrendDataPort
 from domain.value_objects.evidence_item import EvidenceItem
 from domain.value_objects.trend_signal import TrendSignal
-from uuid import uuid4
 
-_NOW = datetime.now(tz=timezone.utc)
+_NOW = datetime.now(tz=UTC)
 
 
 class FakeNicheRepository(NicheRepository):

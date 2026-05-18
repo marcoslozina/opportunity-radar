@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+
 from application.services.scoring_engine import RealEstateScoringEngine
 from domain.value_objects.trend_signal import TrendSignal
 
-_NOW = datetime.now(tz=timezone.utc)
+_NOW = datetime.now(tz=UTC)
 
 
 def _signal(stype: str, raw: float) -> TrendSignal:

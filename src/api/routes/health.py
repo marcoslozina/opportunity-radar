@@ -10,12 +10,14 @@ from infrastructure.quota import get_redis
 
 router = APIRouter()
 
+_VERSION = "0.1.0"
+
 
 @router.get("/health")
 async def health(session: AsyncSession = Depends(get_session)) -> JSONResponse:
     from infrastructure.scheduler.pipeline_scheduler import scheduler
 
-    checks: dict[str, str] = {"status": "ok"}
+    checks: dict[str, str] = {"status": "ok", "version": _VERSION}
 
     # Scheduler
     checks["scheduler"] = "running" if scheduler.running else "stopped"

@@ -18,11 +18,11 @@ from api.schemas.opportunity import (
     ScoreTrajectoryResponse,
 )
 from application.services.trajectory_service import TrajectoryService
-from domain.value_objects.opportunity_dna import OpportunityDNA
-from domain.value_objects.opportunity_score import OpportunityScore
 from application.use_cases.get_briefing import GetBriefingUseCase
 from domain.entities.niche import NicheId
 from domain.value_objects.api_key_context import ApiKeyContext
+from domain.value_objects.opportunity_dna import OpportunityDNA
+from domain.value_objects.opportunity_score import OpportunityScore
 from domain.value_objects.score_trajectory import ScoreTrajectory
 from infrastructure.db.repositories import SQLBriefingRepository
 from infrastructure.db.session import get_session

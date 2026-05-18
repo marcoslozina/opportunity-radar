@@ -17,7 +17,18 @@ from slowapi.errors import RateLimitExceeded
 from api.middleware.limiter import limiter
 from api.middleware.logging import RequestLoggingMiddleware
 from api.middleware.request_id import RequestIdMiddleware
-from api.routes import alert_rules, billing, briefing, health, keywords, niches, opportunities, pipeline, product_briefing
+from api.routes import (
+    alert_rules,
+    billing,
+    briefing,
+    contentforge,
+    health,
+    keywords,
+    niches,
+    opportunities,
+    pipeline,
+    product_briefing,
+)
 from api.routes.keywords import niches_router as niches_suggest_router
 from config import settings
 from infrastructure.scheduler.pipeline_scheduler import schedule_all_niches, scheduler
@@ -90,6 +101,7 @@ app.add_middleware(RequestLoggingMiddleware)
 app.add_middleware(RequestIdMiddleware)
 
 app.include_router(health.router)
+app.include_router(contentforge.router)
 app.include_router(niches.router)
 app.include_router(opportunities.router)
 app.include_router(briefing.router)

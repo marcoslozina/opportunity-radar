@@ -29,18 +29,16 @@ class RunPipelineResponse(BaseModel):
 
 async def _run_content_pipeline(niche_id_str: str) -> None:
     try:
-        from config import settings
-        from infrastructure.db.session import AsyncSessionFactory
-        from infrastructure.db.repositories import SQLNicheRepository, SQLBriefingRepository
-        from infrastructure.adapters.hacker_news import HackerNewsAdapter
-        from infrastructure.adapters.reddit import RedditAdapter
-        from infrastructure.adapters.google_trends import GoogleTrendsAdapter
-        from infrastructure.adapters.youtube import YouTubeAdapter
-        from infrastructure.adapters.product_hunt import ProductHuntAdapter
-        from infrastructure.adapters.serp import SerpAdapter
-        from infrastructure.adapters.claude_insight import ClaudeInsightAdapter
-        from application.services.scoring_engine import ScoringEngine
         from application.use_cases.run_pipeline import RunPipelineUseCase
+        from infrastructure.adapters.claude_insight import ClaudeInsightAdapter
+        from infrastructure.adapters.google_trends import GoogleTrendsAdapter
+        from infrastructure.adapters.hacker_news import HackerNewsAdapter
+        from infrastructure.adapters.product_hunt import ProductHuntAdapter
+        from infrastructure.adapters.reddit import RedditAdapter
+        from infrastructure.adapters.serp import SerpAdapter
+        from infrastructure.adapters.youtube import YouTubeAdapter
+        from infrastructure.db.repositories import SQLBriefingRepository, SQLNicheRepository
+        from infrastructure.db.session import AsyncSessionFactory
 
         async with AsyncSessionFactory() as session:
             use_case = RunPipelineUseCase(
@@ -64,16 +62,19 @@ async def _run_content_pipeline(niche_id_str: str) -> None:
 
 async def _run_product_pipeline(niche_id_str: str) -> None:
     try:
-        from infrastructure.db.session import AsyncSessionFactory
-        from infrastructure.db.repositories import SQLNicheRepository
-        from infrastructure.db.product_repositories import SQLProductBriefingRepository
-        from infrastructure.adapters.frustration_signal import RedditFrustrationAdapter, HNFrustrationAdapter
-        from infrastructure.adapters.serp_product import SerpProductAdapter
-        from infrastructure.adapters.serp import SerpAdapter
-        from infrastructure.adapters.claude_product_discovery import ClaudeProductDiscoveryAdapter
         from application.services.profitability_scoring_engine import ProfitabilityScoringEngine
         from application.use_cases.run_product_discovery import RunProductDiscoveryUseCase
         from config import settings
+        from infrastructure.adapters.claude_product_discovery import ClaudeProductDiscoveryAdapter
+        from infrastructure.adapters.frustration_signal import (
+            HNFrustrationAdapter,
+            RedditFrustrationAdapter,
+        )
+        from infrastructure.adapters.serp import SerpAdapter
+        from infrastructure.adapters.serp_product import SerpProductAdapter
+        from infrastructure.db.product_repositories import SQLProductBriefingRepository
+        from infrastructure.db.repositories import SQLNicheRepository
+        from infrastructure.db.session import AsyncSessionFactory
 
         async with AsyncSessionFactory() as session:
             use_case = RunProductDiscoveryUseCase(

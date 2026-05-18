@@ -6,19 +6,19 @@ import hmac
 import json
 import os
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from cachetools import TTLCache
 from fastapi import Depends, Header, HTTPException, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from api.middleware.auth_guard import check_brute_force, reset_brute_force
 from domain.entities.api_key import ApiKey
 from domain.value_objects.api_key_context import ApiKeyContext
 from domain.value_objects.tier import get_tier
 from infrastructure.db.repositories import SqlApiKeyRepository
 from infrastructure.db.session import get_session
 from infrastructure.quota import increment_query_counter
-from api.middleware.auth_guard import check_brute_force, reset_brute_force
 
 # Module-level TTL cache: maxsize=512, ttl=300s (5 minutes).
 # NOTE: TTLCache is NOT thread-safe. Safe under asyncio (single-threaded event loop).
@@ -113,7 +113,7 @@ def _make_get_api_key(cache: TTLCache | None = None):
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="API key has been revoked",
             )
-        if api_key.expires_at is not None and api_key.expires_at < datetime.now(timezone.utc):
+        if api_key.expires_at is not None and api_key.expires_at < datetime.now(UTC):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="API key has expired",

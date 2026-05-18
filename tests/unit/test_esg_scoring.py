@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-import pytest
+
 from application.services.scoring_engine import ESGScoringEngine
 from domain.value_objects.trend_signal import TrendSignal
 

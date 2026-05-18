@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 from dataclasses import FrozenInstanceError
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 
 from domain.value_objects.evidence_item import EvidenceItem
 
-_NOW = datetime.now(tz=timezone.utc)
+_NOW = datetime.now(tz=UTC)
 
 
 def _make_item(**overrides) -> EvidenceItem:

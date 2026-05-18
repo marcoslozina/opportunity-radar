@@ -1,14 +1,13 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from datetime import datetime
 from uuid import UUID
 
 from domain.entities.alert_rule import AlertRule, AlertRuleId
 from domain.entities.api_key import ApiKey
 from domain.entities.briefing import Briefing
 from domain.entities.niche import Niche, NicheId
-from domain.entities.opportunity import Opportunity, OpportunityId
+from domain.entities.opportunity import Opportunity
 
 
 class NicheRepository(ABC):

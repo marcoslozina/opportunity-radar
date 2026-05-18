@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import uuid4
 
 from application.services.profitability_scoring_engine import ProfitabilityScoringEngine
@@ -35,6 +35,8 @@ class RunProductDiscoveryUseCase:
 
     async def execute(self, niche_id: NicheId) -> None:
         niche = await self._niche_repo.find_by_id(niche_id)
+        if niche is None:
+            raise ValueError(f"Niche {niche_id} not found")
 
         signals = await self._collect_all(niche.keywords)
         scores = self._scoring_engine.score(signals)
@@ -48,14 +50,14 @@ class RunProductDiscoveryUseCase:
                 product_type=None,
                 product_reasoning="",
                 recommended_price_range="",
-                created_at=datetime.now(timezone.utc),
+                created_at=datetime.now(UTC),
             )
             for topic, score in scores
         ]
 
         if opportunities:
             classifications = await self._discovery_port.classify(opportunities)
-            for opportunity, classification in zip(opportunities, classifications):
+            for opportunity, classification in zip(opportunities, classifications, strict=False):
                 opportunity.product_type = classification.product_type
                 opportunity.product_reasoning = classification.reasoning
                 opportunity.recommended_price_range = classification.recommended_price_range
@@ -64,7 +66,7 @@ class RunProductDiscoveryUseCase:
             id=str(uuid4()),
             niche_id=str(niche_id),
             opportunities=opportunities,
-            generated_at=datetime.now(timezone.utc),
+            generated_at=datetime.now(UTC),
         )
         await self._product_briefing_repo.save(briefing)
 

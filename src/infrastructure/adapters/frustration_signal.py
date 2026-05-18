@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import httpx
 import praw
@@ -61,7 +61,7 @@ class RedditFrustrationAdapter(TrendDataPort):
                 topic=keyword,
                 raw_value=avg_score,
                 signal_type="frustration_level",
-                collected_at=datetime.now(tz=timezone.utc),
+                collected_at=datetime.now(tz=UTC),
             )
         except Exception:
             logger.exception("RedditFrustrationAdapter failed for keyword '%s'", keyword)
@@ -114,7 +114,7 @@ class HNFrustrationAdapter(TrendDataPort):
                 topic=keyword,
                 raw_value=avg_value,
                 signal_type="frustration_level",
-                collected_at=datetime.now(tz=timezone.utc),
+                collected_at=datetime.now(tz=UTC),
             )
         except Exception:
             logger.exception("HNFrustrationAdapter failed for keyword '%s'", keyword)

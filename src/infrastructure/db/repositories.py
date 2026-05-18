@@ -15,10 +15,22 @@ from domain.entities.api_key import ApiKey
 from domain.entities.briefing import Briefing, BriefingId
 from domain.entities.niche import Niche, NicheId
 from domain.entities.opportunity import Opportunity, OpportunityId
-from domain.ports.repository_ports import AlertRuleRepository, ApiKeyRepository, BriefingRepository, NicheRepository, OpportunityRepository
+from domain.ports.repository_ports import (
+    AlertRuleRepository,
+    ApiKeyRepository,
+    BriefingRepository,
+    NicheRepository,
+    OpportunityRepository,
+)
 from domain.value_objects.evidence_item import EvidenceItem
 from domain.value_objects.opportunity_score import OpportunityScore
-from infrastructure.db.models import AlertRuleModel, ApiKeyModel, BriefingModel, NicheModel, OpportunityModel
+from infrastructure.db.models import (
+    AlertRuleModel,
+    ApiKeyModel,
+    BriefingModel,
+    NicheModel,
+    OpportunityModel,
+)
 
 
 class SQLNicheRepository(NicheRepository):

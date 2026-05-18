@@ -2,16 +2,26 @@ from __future__ import annotations
 
 import logging
 import os
-from datetime import datetime, timezone
-from typing import Optional
+from datetime import UTC, datetime
 
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
 
+_redis_pool: object | None = None
 
-async def get_redis() -> Optional[object]:
+
+async def get_redis() -> object | None:
+    """Return a shared Redis connection pool instance.
+
+    Uses a module-level singleton so connections are reused instead of
+    creating (and leaking) a new connection on every call.
+    """
+    global _redis_pool
+    if _redis_pool is not None:
+        return _redis_pool
     try:
         import redis.asyncio as aioredis  # type: ignore[import]
-        return await aioredis.from_url(REDIS_URL, decode_responses=True)
+        _redis_pool = await aioredis.from_url(REDIS_URL, decode_responses=True)
+        return _redis_pool
     except Exception:
         return None
 
@@ -22,7 +32,7 @@ async def increment_query_counter(api_key_id: str) -> int:
     Returns the new counter value, or -1 if Redis is unavailable.
     INCR + EXPIRE are executed atomically via pipeline to avoid race conditions.
     """
-    month = datetime.now(timezone.utc).strftime("%Y-%m")
+    month = datetime.now(UTC).strftime("%Y-%m")
     key = f"quota:{api_key_id}:{month}"
     r = await get_redis()
     if r is None:
@@ -44,7 +54,7 @@ async def get_query_count(api_key_id: str) -> int:
 
     Returns 0 if Redis is unavailable or the key does not exist.
     """
-    month = datetime.now(timezone.utc).strftime("%Y-%m")
+    month = datetime.now(UTC).strftime("%Y-%m")
     key = f"quota:{api_key_id}:{month}"
     r = await get_redis()
     if r is None:

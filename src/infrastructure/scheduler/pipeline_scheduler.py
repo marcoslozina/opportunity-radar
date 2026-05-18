@@ -21,19 +21,19 @@ async def _run_pipeline_for_niche(niche_id_str: str) -> None:
 
     _running.add(niche_id_str)
     try:
-        from infrastructure.db.session import AsyncSessionFactory
-        from infrastructure.db.repositories import SQLNicheRepository, SQLBriefingRepository
-        from infrastructure.adapters.hacker_news import HackerNewsAdapter
-        from infrastructure.adapters.reddit import RedditAdapter
-        from infrastructure.adapters.google_trends import GoogleTrendsAdapter
-        from infrastructure.adapters.youtube import YouTubeAdapter
-        from infrastructure.adapters.product_hunt import ProductHuntAdapter
-        from infrastructure.adapters.serp import SerpAdapter
-        from infrastructure.adapters.claude_insight import ClaudeInsightAdapter
-        from application.services.scoring_engine import ScoringEngine
+        from uuid import UUID
+
         from application.use_cases.run_pipeline import RunPipelineUseCase
         from domain.entities.niche import NicheId
-        from uuid import UUID
+        from infrastructure.adapters.claude_insight import ClaudeInsightAdapter
+        from infrastructure.adapters.google_trends import GoogleTrendsAdapter
+        from infrastructure.adapters.hacker_news import HackerNewsAdapter
+        from infrastructure.adapters.product_hunt import ProductHuntAdapter
+        from infrastructure.adapters.reddit import RedditAdapter
+        from infrastructure.adapters.serp import SerpAdapter
+        from infrastructure.adapters.youtube import YouTubeAdapter
+        from infrastructure.db.repositories import SQLBriefingRepository, SQLNicheRepository
+        from infrastructure.db.session import AsyncSessionFactory
 
         async with AsyncSessionFactory() as session:
             use_case = RunPipelineUseCase(
@@ -48,20 +48,22 @@ async def _run_pipeline_for_niche(niche_id_str: str) -> None:
                     SerpAdapter(),
                 ],
                 insight_port=ClaudeInsightAdapter(),
-                scoring_engine=ScoringEngine(),
             )
             briefing = await use_case.execute(NicheId(UUID(niche_id_str)))
             logger.info("Pipeline completed for niche_id=%s", niche_id_str)
 
         # Post-pipeline: evaluate alert rules (best-effort — must not propagate exceptions)
         try:
-            from infrastructure.db.session import AsyncSessionFactory as _Factory
-            from infrastructure.db.repositories import SQLNicheRepository as _NicheRepo, SQLBriefingRepository as _BriefingRepo, SqlAlertRuleRepository
-            from infrastructure.adapters.webhook_notification import WebhookNotificationAdapter
-            from infrastructure.adapters.resend_email import ResendEmailAdapter
+            from uuid import UUID as _UUID
+
             from application.services.alert_evaluation_service import AlertEvaluationService
             from domain.entities.niche import NicheId as _NicheId
-            from uuid import UUID as _UUID
+            from infrastructure.adapters.resend_email import ResendEmailAdapter
+            from infrastructure.adapters.webhook_notification import WebhookNotificationAdapter
+            from infrastructure.db.repositories import SqlAlertRuleRepository
+            from infrastructure.db.repositories import SQLBriefingRepository as _BriefingRepo
+            from infrastructure.db.repositories import SQLNicheRepository as _NicheRepo
+            from infrastructure.db.session import AsyncSessionFactory as _Factory
 
             async with _Factory() as alert_session:
                 niche_repo = _NicheRepo(alert_session)
@@ -89,26 +91,33 @@ async def _run_product_pipeline_for_niche(niche_id_str: str) -> None:
 
     _running.add(niche_id_str)
     try:
-        from infrastructure.db.session import AsyncSessionFactory
-        from infrastructure.db.repositories import SQLNicheRepository
-        from infrastructure.db.product_repositories import SQLProductBriefingRepository
-        from infrastructure.adapters.frustration_signal import FrustrationSignalAdapter
-        from infrastructure.adapters.serp_product import SerpProductAdapter
-        from infrastructure.adapters.claude_product_discovery import ClaudeProductDiscoveryAdapter
+        from uuid import UUID
+
         from application.services.profitability_scoring_engine import ProfitabilityScoringEngine
         from application.use_cases.run_product_discovery import RunProductDiscoveryUseCase
         from domain.entities.niche import NicheId
-        from uuid import UUID
+        from infrastructure.adapters.claude_product_discovery import ClaudeProductDiscoveryAdapter
+        from infrastructure.adapters.frustration_signal import (
+            HNFrustrationAdapter,
+            RedditFrustrationAdapter,
+        )
+        from infrastructure.adapters.serp import SerpAdapter
+        from infrastructure.adapters.serp_product import SerpProductAdapter
+        from infrastructure.db.product_repositories import SQLProductBriefingRepository
+        from infrastructure.db.repositories import SQLNicheRepository
+        from infrastructure.db.session import AsyncSessionFactory
 
         async with AsyncSessionFactory() as session:
             use_case = RunProductDiscoveryUseCase(
                 niche_repo=SQLNicheRepository(session),
                 product_briefing_repo=SQLProductBriefingRepository(session),
                 collectors=[
-                    FrustrationSignalAdapter(),
-                    SerpProductAdapter(),
+                    HNFrustrationAdapter(),
+                    RedditFrustrationAdapter(settings),
+                    SerpProductAdapter(settings),
+                    SerpAdapter(),
                 ],
-                discovery_port=ClaudeProductDiscoveryAdapter(),
+                discovery_port=ClaudeProductDiscoveryAdapter(settings),
                 scoring_engine=ProfitabilityScoringEngine(),
             )
             await use_case.execute(NicheId(UUID(niche_id_str)))
@@ -120,8 +129,8 @@ async def _run_product_pipeline_for_niche(niche_id_str: str) -> None:
 
 
 async def schedule_all_niches() -> None:
-    from infrastructure.db.session import AsyncSessionFactory
     from infrastructure.db.repositories import SQLNicheRepository
+    from infrastructure.db.session import AsyncSessionFactory
 
     async with AsyncSessionFactory() as session:
         niches = await SQLNicheRepository(session).find_all_active()

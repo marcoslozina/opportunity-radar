@@ -1,8 +1,11 @@
-import pytest
+from datetime import UTC
 from unittest.mock import AsyncMock, MagicMock
-from uuid import uuid4
-from domain.entities.niche import Niche, NicheId
+
+import pytest
+
 from application.use_cases.run_pipeline import RunPipelineUseCase
+from domain.entities.niche import Niche
+
 
 @pytest.mark.asyncio
 async def test_run_real_estate_pipeline_integration():
@@ -19,9 +22,10 @@ async def test_run_real_estate_pipeline_integration():
     )
     niche_repo.find_by_id = AsyncMock(return_value=niche)
     
+    from datetime import datetime
+
     from domain.value_objects.trend_signal import TrendSignal
-    from datetime import datetime, timezone
-    now = datetime.now(tz=timezone.utc)
+    now = datetime.now(tz=UTC)
     
     collector.collect = AsyncMock(return_value=[
         TrendSignal(source="s1", topic="t1", raw_value=0.8, signal_type="trend_velocity", collected_at=now),

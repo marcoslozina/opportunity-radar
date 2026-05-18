@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+from uuid import uuid4
+
 from domain.entities.briefing import Briefing
 from domain.entities.niche import NicheId
 from domain.entities.opportunity import Opportunity
 from domain.value_objects.opportunity_score import OpportunityScore
-from uuid import uuid4
 
 
 def _opportunity(topic: str, total: float) -> Opportunity:

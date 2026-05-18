@@ -1,11 +1,12 @@
 from __future__ import annotations
 
-import httpx
-import streamlit as st
-import plotly.graph_objects as go
-import pandas as pd
-import sys
 import os
+import sys
+
+import httpx
+import pandas as pd
+import plotly.graph_objects as go
+import streamlit as st
 
 # Añadir src al path para que Streamlit encuentre los módulos
 sys.path.append(os.path.join(os.path.dirname(__file__), "src"))
@@ -341,7 +342,7 @@ def empty_state(icon: str, title: str, desc: str = ""):
 
 def run_pipeline_button(niche_id: int, mode: str, key_suffix: str = ""):
     btn_key = f"run_pipeline_{niche_id}_{mode}_{key_suffix}"
-    if st.button(f"▶ Correr pipeline ahora", key=btn_key, type="primary", use_container_width=True):
+    if st.button("▶ Correr pipeline ahora", key=btn_key, type="primary", use_container_width=True):
         with st.spinner("Iniciando pipeline…"):
             data, status = _post(f"/pipeline/run/{niche_id}", {"mode": mode})
         if data is not None:
@@ -410,7 +411,7 @@ def _wiz_step0():
     rows = [_WIZ_CATEGORIES[i : i + 3] for i in range(0, len(_WIZ_CATEGORIES), 3)]
     for row in rows:
         cols = st.columns(3)
-        for col, cat in zip(cols, row):
+        for col, cat in zip(cols, row, strict=False):
             with col:
                 if st.button(cat, use_container_width=True, key=f"wiz_cat_{cat}"):
                     st.session_state.wiz_category = cat
@@ -424,7 +425,7 @@ def _wiz_step0():
     st.markdown("---")
     st.markdown("**O usá una plantilla predefinida:**")
     cols = st.columns(len(TEMPLATES))
-    for col, (tid, t) in zip(cols, TEMPLATES.items()):
+    for col, (tid, t) in zip(cols, TEMPLATES.items(), strict=False):
         with col:
             st.markdown(
                 f'<div class="card card-hover" style="margin-bottom:8px;min-height:100px">'
@@ -458,7 +459,7 @@ def _wiz_step1():
         rows = [niches[i : i + 3] for i in range(0, len(niches), 3)]
         for row in rows:
             cols = st.columns(3)
-            for col, niche in zip(cols, row):
+            for col, niche in zip(cols, row, strict=False):
                 with col:
                     name = niche.get("name", "")
                     description = niche.get("description", "")
@@ -694,7 +695,7 @@ def render_nichos():
     )
     for col, label in zip(
         [col_name, col_keywords, col_mode, col_active, col_last, col_actions],
-        ["Nombre", "Keywords", "Modo", "Estado", "Último briefing", "Acciones"],
+        ["Nombre", "Keywords", "Modo", "Estado", "Último briefing", "Acciones"], strict=False,
     ):
         with col:
             st.markdown(f"<small style='color:#64748B;font-weight:600'>{label}</small>", unsafe_allow_html=True)
@@ -1029,7 +1030,7 @@ def render_product_briefing(niche_id: int | None):
         row_opps = top5[row_start : row_start + cols_per_row]
         cols = st.columns(cols_per_row)
 
-        for col, opp in zip(cols, row_opps):
+        for col, opp in zip(cols, row_opps, strict=False):
             with col:
                 score = opp["score"]
                 ptype = opp.get("product_type", "")

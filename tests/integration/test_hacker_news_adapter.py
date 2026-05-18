@@ -1,10 +1,10 @@
 from __future__ import annotations
 
+import httpx
 import pytest
 import respx
-import httpx
 
-from infrastructure.adapters.hacker_news import HackerNewsAdapter, _HN_SEARCH_URL
+from infrastructure.adapters.hacker_news import _HN_SEARCH_URL, HackerNewsAdapter
 
 
 @pytest.fixture

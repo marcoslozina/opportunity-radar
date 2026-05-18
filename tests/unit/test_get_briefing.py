@@ -3,8 +3,6 @@ from __future__ import annotations
 from datetime import datetime
 from uuid import uuid4
 
-import pytest
-
 from application.services.trajectory_service import TrajectoryService
 from application.use_cases.get_briefing import GetBriefingUseCase
 from domain.entities.briefing import Briefing

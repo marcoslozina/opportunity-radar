@@ -5,7 +5,11 @@ import pytest
 import respx
 
 from config import Settings
-from infrastructure.adapters.frustration_signal import HNFrustrationAdapter, _HN_SEARCH_URL, RedditFrustrationAdapter
+from infrastructure.adapters.frustration_signal import (
+    _HN_SEARCH_URL,
+    HNFrustrationAdapter,
+    RedditFrustrationAdapter,
+)
 
 
 @pytest.fixture

@@ -1,9 +1,7 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from uuid import uuid4
-
-import pytest
 
 from application.services.alert_evaluation_service import AlertEvaluationService
 from domain.entities.alert_rule import AlertRule, AlertRuleId
@@ -13,7 +11,6 @@ from domain.entities.opportunity import Opportunity, OpportunityId
 from domain.ports.repository_ports import AlertRuleRepository, BriefingRepository
 from domain.value_objects.alert_payload import AlertPayload
 from domain.value_objects.opportunity_score import OpportunityScore
-
 
 # ---------------------------------------------------------------------------
 # Fakes
@@ -112,7 +109,7 @@ def make_briefing(niche_id: NicheId, opportunities: list[Opportunity]) -> Briefi
         id=BriefingId(uuid4()),
         niche_id=niche_id,
         opportunities=opportunities,
-        generated_at=datetime.now(timezone.utc),
+        generated_at=datetime.now(UTC),
     )
 
 
@@ -198,7 +195,7 @@ async def test_evaluate_does_not_fire_when_all_scores_below_threshold() -> None:
 
 async def test_evaluate_suppresses_when_last_notified_within_1h() -> None:
     niche = make_niche()
-    recent_time = datetime.now(timezone.utc) - timedelta(minutes=30)
+    recent_time = datetime.now(UTC) - timedelta(minutes=30)
     rule = make_rule(niche_id=str(niche.id), threshold=70.0, last_notified_at=recent_time)
     briefing = make_briefing(niche.id, [make_opportunity("AI Tools", 88.0)])
 
@@ -211,7 +208,7 @@ async def test_evaluate_suppresses_when_last_notified_within_1h() -> None:
 
 async def test_evaluate_fires_when_suppression_window_expired() -> None:
     niche = make_niche()
-    old_time = datetime.now(timezone.utc) - timedelta(minutes=90)
+    old_time = datetime.now(UTC) - timedelta(minutes=90)
     rule = make_rule(niche_id=str(niche.id), threshold=70.0, last_notified_at=old_time)
     briefing = make_briefing(niche.id, [make_opportunity("AI Tools", 88.0)])
 

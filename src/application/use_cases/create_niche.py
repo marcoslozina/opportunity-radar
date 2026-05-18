@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from domain.entities.niche import Niche, NicheId
+from domain.entities.niche import Niche
 from domain.ports.repository_ports import NicheRepository
 
 

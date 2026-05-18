@@ -6,7 +6,6 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 
 from infrastructure.db.models import Base
 from infrastructure.db.session import get_session
-from infrastructure.scheduler.pipeline_scheduler import add_niche_job, remove_niche_job
 from main import app
 
 TEST_DB_URL = "sqlite+aiosqlite:///:memory:"

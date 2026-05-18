@@ -7,7 +7,7 @@ from fastapi.testclient import TestClient
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from api.dependencies.api_key import get_api_key
-from domain.entities.niche import Niche, NicheId
+from domain.entities.niche import Niche
 from domain.value_objects.api_key_context import ApiKeyContext
 from infrastructure.db.models import Base
 from infrastructure.db.repositories import SQLNicheRepository

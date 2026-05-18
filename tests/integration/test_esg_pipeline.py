@@ -1,9 +1,11 @@
-import pytest
+from datetime import UTC, datetime
 from unittest.mock import AsyncMock, MagicMock
-from domain.entities.niche import Niche
+
+import pytest
+
 from application.use_cases.run_pipeline import RunPipelineUseCase
+from domain.entities.niche import Niche
 from domain.value_objects.trend_signal import TrendSignal
-from datetime import datetime, timezone
 
 
 @pytest.mark.asyncio
@@ -21,7 +23,7 @@ async def test_run_esg_pipeline_integration():
     )
     niche_repo.find_by_id = AsyncMock(return_value=niche)
     
-    now = datetime.now(tz=timezone.utc)
+    now = datetime.now(tz=UTC)
     
     # We want to verify that ESGScoringEngine is used (via factory)
     # ESG weights focus more on competition_gap (0.30)

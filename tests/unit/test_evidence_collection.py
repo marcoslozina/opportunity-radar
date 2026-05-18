@@ -1,13 +1,9 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from unittest.mock import MagicMock, patch
 
-import pytest
-
-from domain.value_objects.evidence_item import EvidenceItem
-
-_NOW = datetime.now(tz=timezone.utc)
+_NOW = datetime.now(tz=UTC)
 
 
 # ─── Reddit ──────────────────────────────────────────────────────────────────

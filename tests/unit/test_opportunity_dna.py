@@ -5,7 +5,6 @@ import pytest
 from domain.value_objects.opportunity_dna import OpportunityDNA
 from domain.value_objects.opportunity_score import OpportunityScore
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------

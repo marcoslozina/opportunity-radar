@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from serpapi import Client
 
@@ -61,5 +61,5 @@ class SerpProductAdapter(TrendDataPort):
             topic=keyword,
             raw_value=raw_value,
             signal_type="competition_gap",
-            collected_at=datetime.now(tz=timezone.utc),
+            collected_at=datetime.now(tz=UTC),
         )

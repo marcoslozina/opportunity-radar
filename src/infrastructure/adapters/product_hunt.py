@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import httpx
 
@@ -53,7 +53,7 @@ class ProductHuntAdapter(TrendDataPort):
                 topic=keyword,
                 raw_value=raw_value,
                 signal_type="monetization_intent",
-                collected_at=datetime.now(tz=timezone.utc),
+                collected_at=datetime.now(tz=UTC),
             )
         except Exception:
             return None

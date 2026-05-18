@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from uuid import UUID
+
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -12,9 +14,11 @@ from domain.entities.niche import NicheId
 from domain.value_objects.api_key_context import ApiKeyContext
 from infrastructure.db.repositories import SQLNicheRepository
 from infrastructure.db.session import get_session
-from infrastructure.scheduler.pipeline_scheduler import add_niche_job, add_product_discovery_job, remove_niche_job
-
-from uuid import UUID
+from infrastructure.scheduler.pipeline_scheduler import (
+    add_niche_job,
+    add_product_discovery_job,
+    remove_niche_job,
+)
 
 router = APIRouter(prefix="/niches", tags=["niches"])
 

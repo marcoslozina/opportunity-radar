@@ -7,7 +7,6 @@ from fastapi import Depends, FastAPI
 from fastapi.testclient import TestClient
 
 from api.dependencies.api_key import _key_cache, get_api_key
-from domain.entities.api_key import ApiKey
 from domain.value_objects.api_key_context import ApiKeyContext
 from infrastructure.db.session import get_session
 

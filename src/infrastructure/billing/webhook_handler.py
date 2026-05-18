@@ -64,7 +64,7 @@ async def handle_webhook(
                 f"[BILLING] Variant ID {variant_id!r} not in VARIANT_TO_TIER map, "
                 f"matched by name: {tier}"
             )
-        raw_key = await create_subscription(order_id, tier, email, session)
+        await create_subscription(order_id, tier, email, session)
         return {"status": "provisioned", "order_id": order_id, "tier": tier}
 
     return {"status": "ignored", "event": event_name}

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from serpapi import Client
 
@@ -32,7 +32,7 @@ class SerpAdapter(TrendDataPort):
             results = client.search({"engine": "google", "q": keyword})
 
             signals: list[TrendSignal] = []
-            now = datetime.now(tz=timezone.utc)
+            now = datetime.now(tz=UTC)
 
             # competition_gap: invertido — menos resultados orgánicos = más gap
             organic = results.get("organic_results", [])
@@ -67,7 +67,7 @@ class SerpAdapter(TrendDataPort):
 
     def _collect_evidence(self, keyword: str, results: dict) -> list[EvidenceItem]:
         try:
-            now = datetime.now(tz=timezone.utc)
+            now = datetime.now(tz=UTC)
             evidence: list[EvidenceItem] = []
 
             organic = results.get("organic_results", [])

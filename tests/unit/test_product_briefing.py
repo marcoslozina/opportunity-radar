@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import uuid4
 
 from domain.entities.product_briefing import ProductBriefing
 from domain.entities.product_opportunity import ProductOpportunity
 from domain.value_objects.profitability_score import ProfitabilityScore
 
-_NOW = datetime.now(tz=timezone.utc)
+_NOW = datetime.now(tz=UTC)
 
 
 def _opportunity(topic: str, total: float) -> ProductOpportunity:

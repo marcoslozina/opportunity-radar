@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from domain.value_objects.evidence_item import EvidenceItem
 from infrastructure.db.repositories import _deserialize_evidence, _serialize_evidence
 
-_NOW = datetime(2025, 1, 15, 12, 0, 0, tzinfo=timezone.utc)
+_NOW = datetime(2025, 1, 15, 12, 0, 0, tzinfo=UTC)
 
 
 def _make_item(topic: str = "test", url: str | None = "https://example.com") -> EvidenceItem:

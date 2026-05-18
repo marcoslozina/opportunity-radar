@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from cachetools import TTLCache
 from pytrends.request import TrendReq
@@ -26,7 +26,7 @@ class GoogleTrendsAdapter(TrendDataPort):
                         topic=keyword,
                         raw_value=raw_value,
                         signal_type="trend_velocity",
-                        collected_at=datetime.now(tz=timezone.utc),
+                        collected_at=datetime.now(tz=UTC),
                     )
                 )
         return signals

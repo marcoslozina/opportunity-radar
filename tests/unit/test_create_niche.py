@@ -5,7 +5,6 @@ import pytest
 from application.use_cases.create_niche import CreateNicheUseCase, KeywordsRequiredError
 from domain.entities.niche import Niche, NicheId
 from domain.ports.repository_ports import NicheRepository
-from uuid import UUID
 
 
 class FakeNicheRepository(NicheRepository):

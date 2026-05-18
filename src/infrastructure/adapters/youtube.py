@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from googleapiclient.discovery import build
 
@@ -52,7 +52,7 @@ class YouTubeAdapter(TrendDataPort):
                 topic=keyword,
                 raw_value=raw_value,
                 signal_type="social_signal",
-                collected_at=datetime.now(tz=timezone.utc),
+                collected_at=datetime.now(tz=UTC),
             )
             evidence = self._collect_evidence(keyword, items)
             return signal, evidence
@@ -61,7 +61,7 @@ class YouTubeAdapter(TrendDataPort):
 
     def _collect_evidence(self, keyword: str, items: list[dict]) -> list[EvidenceItem]:
         try:
-            now = datetime.now(tz=timezone.utc)
+            now = datetime.now(tz=UTC)
             return [
                 EvidenceItem(
                     source="youtube",

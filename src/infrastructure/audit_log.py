@@ -20,6 +20,7 @@ async def log_billing_event(
     metadata: dict[str, Any] | None = None,
 ) -> None:
     import asyncio
+
     from infrastructure.supabase_provisioning import _get_client
 
     def _sync() -> None:
