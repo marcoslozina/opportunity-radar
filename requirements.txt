@@ -9,7 +9,7 @@ asyncpg==0.31.0
 cachetools==7.0.6
 email-validator==2.2.0
 fastapi==0.136.0
-google-api-python-client==2.194.0
+google-api-python-client==2.196.0
 google-api-python-client-stubs==1.35.0
 httpx==0.28.1
 plotly==6.7.0
